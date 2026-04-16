@@ -586,6 +586,20 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     .swipe-nav-btn:disabled {{ opacity: 0.3; cursor: default; }}
     .swipe-nav-btn:hover:not(:disabled) {{ background: #a93226; }}
     .swipe-counter {{ font-size: 14px; font-weight: 600; color: #555; min-width: 70px; text-align: center; }}
+    .page-nums {{
+      display: flex; gap: 4px; overflow-x: auto; padding: 4px 0 8px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      justify-content: flex-start;
+    }}
+    .page-nums::-webkit-scrollbar {{ display: none; }}
+    .page-num-btn {{
+      background: #eee; border: none; color: #555;
+      min-width: 32px; height: 32px; border-radius: 16px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      flex-shrink: 0; transition: all 0.15s;
+    }}
+    .page-num-btn:hover {{ background: #ddd; }}
+    .page-num-btn.active {{ background: #c0392b; color: white; }}
     .page-block {{
       background: white; border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
@@ -771,6 +785,19 @@ function initSwipe(containerId) {{
     <button class="swipe-nav-btn" onclick="swipeTo('${{containerId}}', +1)">▶</button>`;
   container.insertBefore(nav, container.firstChild);
 
+  // ページ番号ボタン列
+  const nums = document.createElement('div');
+  nums.className = 'page-nums';
+  nums.id = 'page-nums-' + containerId;
+  for (let i = 0; i < blocks.length; i++) {{
+    const btn = document.createElement('button');
+    btn.className = 'page-num-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = i + 1;
+    btn.onclick = (function(idx) {{ return function() {{ swipeGoTo(containerId, idx); }}; }})(i);
+    nums.appendChild(btn);
+  }}
+  nav.after(nums);
+
   // 初期表示: 最初のページのみ
   blocks.forEach((b, i) => b.classList.toggle('swipe-hidden', i !== 0));
   updateSwipeButtons(containerId);
@@ -812,6 +839,7 @@ function swipeGoTo(containerId, pageIdx) {{
   s.current = pageIdx;
   s.blocks[s.current].classList.remove('swipe-hidden');
   updateSwipeButtons(containerId);
+  window.scrollTo({{ top: s.blocks[s.current].offsetTop - 180, behavior: 'smooth' }});
 }}
 
 function updateSwipeButtons(containerId) {{
@@ -824,6 +852,21 @@ function updateSwipeButtons(containerId) {{
     const btns = nav.querySelectorAll('.swipe-nav-btn');
     if (btns[0]) btns[0].disabled = s.current === 0;
     if (btns[1]) btns[1].disabled = s.current === s.total - 1;
+  }}
+  // ページ番号ボタンのアクティブ更新
+  const nums = document.getElementById('page-nums-' + containerId);
+  if (nums) {{
+    const numBtns = nums.querySelectorAll('.page-num-btn');
+    numBtns.forEach(function(b, i) {{ b.classList.toggle('active', i === s.current); }});
+    // アクティブボタンが見えるように手動スクロール
+    var activeBtn = numBtns[s.current];
+    if (activeBtn) {{
+      var numsEl = nums;
+      setTimeout(function() {{
+        var target = activeBtn.offsetLeft - numsEl.clientWidth / 2 + activeBtn.offsetWidth / 2;
+        numsEl.scrollLeft = target;
+      }}, 50);
+    }}
   }}
 }}
 
@@ -840,6 +883,15 @@ function showSection(id) {{
   document.getElementById('tab-' + id).classList.add('active');
   const q = document.getElementById('searchInput').value.trim();
   if (q) highlightSection(id, q);
+  // 表示後にページ番号ボタンのスクロール位置を更新
+  setTimeout(function() {{
+    var section = document.getElementById('section-' + id);
+    if (section) {{
+      section.querySelectorAll('.swipe-container').forEach(function(c) {{
+        if (swipeState[c.id]) updateSwipeButtons(c.id);
+      }});
+    }}
+  }}, 60);
 }}
 
 // ===== 販促計画書 月切替 =====
