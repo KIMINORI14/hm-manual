@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>HM マニュアル 2026年5月版</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Meiryo', sans-serif;
+      background: #f5f5f5; color: #222; min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .app-header {
+      background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+      color: white; padding: 12px 16px 0;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .app-title {
+      font-size: 15px; font-weight: 700; letter-spacing: 0.5px;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .app-title span.ver {
+      font-size: 11px; background: rgba(255,255,255,0.25);
+      padding: 2px 6px; border-radius: 10px; font-weight: normal;
+    }
+    .app-title span.updated { font-size: 10px; opacity: 0.7; margin-left: auto; }
+    .search-bar { display: flex; gap: 6px; margin-bottom: 8px; }
+    .search-wrap { position: relative; flex: 1; }
+    .search-wrap::before {
+      content: '🔍'; position: absolute; left: 10px; top: 50%;
+      transform: translateY(-50%); font-size: 14px; pointer-events: none;
+    }
+    #searchInput {
+      width: 100%; padding: 8px 36px 8px 32px; border: none;
+      border-radius: 20px; font-size: 15px; background: rgba(255,255,255,0.95);
+      color: #333; outline: none; -webkit-appearance: none;
+    }
+    #searchInput:focus { background: #fff; box-shadow: 0 0 0 2px #f39c12; }
+    #clearBtn {
+      background: rgba(255,255,255,0.25); border: none; color: white;
+      padding: 6px 12px; border-radius: 16px; font-size: 13px;
+      cursor: pointer; white-space: nowrap;
+    }
+    #clearBtn:hover { background: rgba(255,255,255,0.4); }
+    .tabs {
+      display: flex; gap: 2px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab-btn {
+      background: rgba(255,255,255,0.15); border: none; color: rgba(255,255,255,0.8);
+      padding: 8px 14px; border-radius: 6px 6px 0 0; font-size: 13px;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0;
+      position: relative;
+    }
+    .tab-btn:hover { background: rgba(255,255,255,0.25); color: white; }
+    .tab-btn.active { background: #f5f5f5; color: #c0392b; font-weight: 700; }
+    .tab-badge {
+      display: none; position: absolute; top: 2px; right: 2px;
+      background: #f39c12; color: white; font-size: 10px; font-weight: 700;
+      min-width: 16px; height: 16px; border-radius: 8px;
+      line-height: 16px; text-align: center; padding: 0 3px;
+    }
+    .tab-badge.show { display: block; }
+    @media (max-width: 400px) {
+      .tab-label { display: none; }
+      .tab-btn { padding: 8px 10px; font-size: 16px; }
+    }
+    .main { max-width: 900px; margin: 0 auto; padding: 12px; }
+    .section-header {
+      background: white; border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .section-header h2 { font-size: 16px; color: #c0392b; margin-bottom: 4px; }
+    .section-desc { font-size: 12px; color: #666; }
+    .month-tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .month-tab {
+      background: white; border: 2px solid #ddd; color: #555;
+      padding: 8px 16px; border-radius: 20px; font-size: 13px;
+      cursor: pointer; transition: all 0.2s; font-weight: 600;
+    }
+    .month-tab.active { background: #c0392b; border-color: #c0392b; color: white; }
+    .month-tab:hover:not(.active) { border-color: #c0392b; color: #c0392b; }
+
+    /* ===== スワイプ ===== */
+    .swipe-container { position: relative; }
+    .swipe-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; margin-bottom: 12px; user-select: none;
+    }
+    .swipe-nav-btn {
+      background: #c0392b; color: white; border: none;
+      width: 36px; height: 36px; border-radius: 50%;
+      font-size: 18px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: opacity 0.2s;
+    }
+    .swipe-nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .swipe-nav-btn:hover:not(:disabled) { background: #a93226; }
+    .swipe-counter { font-size: 14px; font-weight: 600; color: #555; min-width: 70px; text-align: center; }
+    .page-block {
+      background: white; border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      overflow: hidden; transition: box-shadow 0.2s;
+    }
+    .page-block.highlight {
+      box-shadow: 0 0 0 3px #f39c12, 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .swipe-container .page-block { margin-bottom: 16px; }
+    .swipe-container .page-block.swipe-hidden { display: none; }
+    .page-header {
+      background: #f8f8f8; padding: 6px 14px; border-bottom: 1px solid #eee;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .page-badge { font-size: 12px; color: #888; font-weight: 600; }
+    .new-badge {
+      background: #e74c3c; color: white; font-size: 10px;
+      padding: 2px 6px; border-radius: 8px; margin-left: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+    .page-block[data-changed="true"] {
+      border: 2px solid #e74c3c;
+    }
+    .page-img-wrap { position: relative; cursor: zoom-in; overflow: hidden; }
+    .page-img { width: 100%; height: auto; display: block; transition: transform 0.2s; }
+    .page-img-wrap:hover .page-img { transform: scale(1.01); }
+    .zoom-hint {
+      position: absolute; bottom: 8px; right: 8px;
+      background: rgba(0,0,0,0.55); color: white;
+      font-size: 11px; padding: 3px 8px; border-radius: 10px;
+      pointer-events: none; opacity: 0; transition: opacity 0.2s;
+    }
+    .page-img-wrap:hover .zoom-hint { opacity: 1; }
+    @media (hover: none) { .zoom-hint { opacity: 1 !important; } }
+
+    /* ===== 検索バナー ===== */
+    #searchBanner {
+      display: none; background: #fff3cd; border: 1px solid #f39c12;
+      border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;
+      font-size: 13px; color: #856404;
+    }
+    #searchBanner .result-count { font-weight: 700; }
+    #searchBanner .result-nav { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+    .result-chip {
+      background: #f39c12; color: white; border: none;
+      padding: 3px 10px; border-radius: 12px; font-size: 12px; cursor: pointer;
+    }
+    .result-chip:hover { background: #e67e22; }
+
+    /* ===== ライトボックス ===== */
+    #lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 999;
+      flex-direction: column; align-items: center;
+      justify-content: flex-start; overflow: hidden;
+    }
+    #lightbox.open { display: flex; }
+    #lbToolbar {
+      width: 100%; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; flex-shrink: 0;
+    }
+    #lbTitle { color: white; font-size: 13px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #lbClose {
+      background: none; border: 1px solid rgba(255,255,255,0.4);
+      color: white; padding: 5px 12px; border-radius: 14px;
+      cursor: pointer; font-size: 13px; margin-left: 8px; flex-shrink: 0;
+    }
+    #lbZoomControls { display: flex; gap: 6px; margin-left: 8px; }
+    .lb-zoom-btn {
+      background: rgba(255,255,255,0.15); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 50%;
+      font-size: 16px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .lb-zoom-btn:hover { background: rgba(255,255,255,0.3); }
+    #lbImgContainer {
+      flex: 1; overflow: auto; width: 100%;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 10px; -webkit-overflow-scrolling: touch;
+    }
+    #lbImg { width: 100%; max-width: 100%; height: auto; display: block; transition: width 0.15s; }
+
+    /* ===== ロック画面 ===== */
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #c0392b 0%, #e74c3c 50%, #d35400 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #lockScreen.hidden { display: none; }
+    .lock-card {
+      background: white; border-radius: 16px; padding: 32px 28px;
+      max-width: 360px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+    .lock-icon { font-size: 48px; margin-bottom: 12px; }
+    .lock-title { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 4px; }
+    .lock-subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .lock-input {
+      width: 100%; padding: 12px 16px; border: 2px solid #ddd;
+      border-radius: 10px; font-size: 16px; text-align: center;
+      outline: none; -webkit-appearance: none; margin-bottom: 12px;
+    }
+    .lock-input:focus { border-color: #c0392b; }
+    .lock-btn {
+      width: 100%; padding: 12px; background: #c0392b; color: white;
+      border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .lock-btn:hover { background: #a93226; }
+    .lock-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .lock-error {
+      color: #e74c3c; font-size: 13px; margin-top: 10px;
+      min-height: 20px;
+    }
+    .lock-expired {
+      background: #fff3cd; border: 1px solid #f39c12; border-radius: 10px;
+      padding: 16px; margin-bottom: 16px; font-size: 13px; color: #856404;
+    }
+  </style>
+</head>
+<body>
+
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">HM マニュアル</div>
+    <div class="lock-subtitle">パスワードを入力してください</div>
+    <div id="expiredMsg" class="lock-expired" style="display:none">
+      ⚠️ このマニュアルの有効期限が切れています。<br>最新版を管理者から受け取ってください。
+    </div>
+    <form id="lockForm" onsubmit="return handleLogin(event)">
+      <input type="password" id="lockPassword" class="lock-input"
+             placeholder="パスワード" autocomplete="off" autofocus>
+      <button type="submit" class="lock-btn" id="lockBtn">ログイン</button>
+    </form>
+    <div class="lock-error" id="lockError"></div>
+  </div>
+</div>
+<div id="appContent" style="display:none">
+<header class="app-header">
+  <div class="app-title">
+    🍱 HM マニュアル <span class="ver">2026年5月版</span>
+    <span class="updated">更新: 2026年04月16日</span>
+  </div>
+  <div class="search-bar">
+    <div class="search-wrap">
+      <input type="search" id="searchInput" placeholder="キーワードで検索（例：南蛮、ライス、調理手順）"
+             oninput="handleSearch()" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <button id="clearBtn" onclick="clearSearch()">クリア</button>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showSection('fuzokuhin')" id="tab-fuzokuhin">📋 <span class="tab-label">付属品</span><span class="tab-badge" id="badge-fuzokuhin"></span></button>
+    <button class="tab-btn" onclick="showSection('rice')" id="tab-rice">🍚 <span class="tab-label">ライス盛付</span><span class="tab-badge" id="badge-rice"></span></button>
+    <button class="tab-btn" onclick="showSection('chouri')" id="tab-chouri">🍳 <span class="tab-label">調理手順</span><span class="tab-badge" id="badge-chouri"></span></button>
+    <button class="tab-btn" onclick="showSection('hansoku')" id="tab-hansoku">📣 <span class="tab-label">販促計画</span><span class="tab-badge" id="badge-hansoku"></span></button>
+  </div>
+</header>
+
+<main class="main">
+  <div id="searchBanner">
+    <span>🔍 "<span id="searchKeyword"></span>" の検索結果：<span class="result-count" id="resultCount">0</span>件</span>
+    <div class="result-nav" id="resultNav"></div>
+  </div>
+
+  <section id="section-fuzokuhin" class="section" style="display:block">
+    <div class="section-header">
+      <h2>📋 HM付属品一覧</h2>
+      <p class="section-desc">2026年5月版 メニュー別付属品（小袋・シール等）一覧</p>
+    </div>
+    <div class="swipe-container" id="swipe-fuzokuhin">
+      
+        <div class="page-block" data-section="fuzokuhin" data-page="1"
+             data-searchtext="【2026.5】HM付属品一覧260409                               1 / 3 ページ
+                                                                                                         ※全国共通
+
+            南蛮          九州南蛮        4から(６から同様）    デミ            デミカラ          チーズ         オニオン         オニカラ
+
+
+
+
+                 １ヶ            １ヶ          １ヶ          １ヶ           １ヶ              １ヶ           １ヶ        １ヶ
+
+          しょうが          Wしょうが        ショウカラ        ヤキニク          Wヤキニク         ニクカラ         タツタ         とんかつ
+    セ
+    パ
+    レ
+                                                                    １ヶ
+   ー                                                                                        or             １ヶ
+                 １ヶ            １ヶ          １ヶ          １ヶ           １ヶ               １ヶ          １ヶ
+    ト
+          かつとじ           イタメ          テンプラ                      ステジュウ       ダブルステジュウ      スペシャル        ステベン
+    メ
+    ニ
+   ュ
+   ー             １ヶ            １ヶ            １ヶ                                 ×２
+                                                                    １ヶ               １ヶ          １ヶ        １ヶ
+
+          マゼメン          マゼライス                                   カツベン          スブタ         ダブルスブタ      タケノコ○○
+
+
+
+
+                                                                                     １ヶ          １ヶ       １ヶ
+                 １ヶ            １ヶ                                      １ヶ">
+          <div class="page-header">
+            <span class="page-badge">1 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-1.png', 'fuzokuhin - ページ 1')">
+            <img src="images/fuzokuhin-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="fuzokuhin" data-page="2"
+             data-searchtext="【2026.5】HM付属品一覧260409                                      2 / 3 ページ
+                                                                                                              ※全国共通
+
+            のり               特のりタル        ゼンノリタル        シャケ            ビックタル         デラックス      カツメシ       シロミカレー
+
+
+
+
+                        or               or                        or
+                             +                +                         +                                       １ヶ
+            or
+                 １ヶ                １ヶ             １ヶ          １ヶ             １ヶ           １ヶ         １ヶ         １ヶ
+           カレー               カツカレー            からカレー     かつ丼             親子            テンドン     ジョウテンドン      テントジ
+
+
+
+
+                                    １ヶ            １ヶ                                      １ヶ        １ヶ          １ヶ
+    お                              １ヶ             １ヶ          １ヶ
+                  １ヶ                                                         １ヶ
+    弁     ナポサラ          ダブルナポサラ               ナポベン     ダブルナポベン         ガパオライス        ガパオメン      イマバリ       ダブルイマバリ
+    当
+    メ
+    ニ
+   ュ                                                                                      １ヶ         １ヶ         １ヶ
+                 １ヶ                １ヶ             １ヶ          １ヶ
+                                                                               １ヶ
+   ー
+            洋風                特撰              テリマク      ニクマク            ビビンバ        ニクマシビビンバ    マーラー       チーズマーラー
+
+
+
+
+                             ×１    １ヶ
+                                                                                                     １ヶ         １ヶ
+                 １ヶ                               １ヶ          １ヶ         １ヶ               １ヶ         １ヶ         １ヶ
+         ムギシャケ               ムギドウフ        ムギテンドン                   ダブルカツドン          ダブルカツトジ ドラえもん/ドラミちゃん
+
+
+
+                                                                                                               １ヶ
+                                                                                                               １ヶ
+                 １ヶ                １ヶ             １ヶ
+                                                                             １ヶ           １ヶ                    １ヶ">
+          <div class="page-header">
+            <span class="page-badge">2 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-2.png', 'fuzokuhin - ページ 2')">
+            <img src="images/fuzokuhin-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="fuzokuhin" data-page="3"
+             data-searchtext="【2026.5】HM付属品一覧260409                                          3 / 3 ページ
+                                                                                                                   ※全国共通
+
+          プラから           手羽（5本）           手羽（10本）         ポテト              ホットチキン       ハルマキ       シロミボックス
+
+
+
+
+                                                                                                      ×１   ×2
+                                    ×１               ×１                          ×１
+    サ             １ヶ
+                                    １ヶ               １ヶ            １ヶ                                    ２ヶ
+    イ
+          トンジル          ウマカラトンジル          ワカメウドン          サラダ              ナナサラ         ルーノミ          チヂミ       ヒヤシウドン
+    ド
+    ・
+    フ                                新
+                                     味
+
+
+   ァ                                                      or                or
+                 １ヶ                 １ヶ           １ヶ              １ヶ              １ヶ
+    ミ                                                                                         １ヶ
+
+    リ    ハチボックス         Wチキンボックス チキポテボックス ポテトボックス ジュウニボックス                                   ジュウロクセット
+
+   ー
+    メ
+                                       ケチャップ50ｇ
+    ニ                     ×２       ×１          ×１                                            8個入り×２
+              ×２                 ２ヶ                   ×２
+   ュ          ２ヶ        ２ヶ
+                                   ２ヶ         ２ヶ      ２ヶ                                      ×４           4ヶ
+                        ２ヶ
+   ー    オードブル2200 オードブル3300 オードブル5500 おつまみプレート ドラえもんプレート
+
+
+
+
+                 ×1            ×２    ×１         ×２                                 ３ヶ   ３枚    1枚
+                                                          ×１     ×２
+                 ３ヶ                 ４ヶ     ×１        ５ヶ           ３ヶ 1ヶ 1ヶ
+                                                                                  ３ヶ
+                 ３ヶ                 ４ヶ               ５ヶ           ３ヶ              ３ヶ">
+          <div class="page-header">
+            <span class="page-badge">3 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-3.png', 'fuzokuhin - ページ 3')">
+            <img src="images/fuzokuhin-3.png" alt="ページ3" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+    </div>
+  </section>
+
+  <section id="section-rice" class="section" style="display:none">
+    <div class="section-header">
+      <h2>🍚 ライス盛付・ラベル・小袋貼付位置</h2>
+      <p class="section-desc">2026年5月版 ライス盛付量・ラベル貼付位置・小袋貼付位置</p>
+    </div>
+    <div class="swipe-container" id="swipe-rice">
+      
+        <div class="page-block" data-section="rice" data-page="1"
+             data-searchtext="◆ライス盛付一覧表◆
+                                                                                                                                                      2026.5月更新
+
+                                                                                            ☆ライスの大盛は、記載重量より                                      HM店舗モデル開発部
+
+※標記の重量はライスのみの重量であり、容器重量は含んでおりません。                                                            ”プラス100ｇ”です。
+※地域メニューは、加味しておりません。                                                                         ☆ライスの小盛は、”マイナス                50ｇ”です。
+                                                                                            ☆たけのこごはん変更時の盛り付け量は&quot;200g&quot;で
+                                                                                            す。
+
+
+                         ライス                 のり弁当                     特のりタル・全部のり弁                                                             もちミニ弁当各種
+
+                         ラベル                   ラベル                           ラベル                                            ラベル                       ラベル
+                                                                        タ
+                                                                        ル
+                                              小袋                             小袋                                      小袋
+                                                                        タ                                                   シール                  小袋
+                                                                                                                                                            小袋貼付商品
+                                                                        ル
+
+                               シール                                                                                                                           の場合
+                                                シール                           シール
+
+
+
+
+   ライス容器（身）(低フタ)                                      ライス容器(身)(高フタ)                                     新角丼容器（身）                       低・新角丼容器(身)並木柄
+                        大盛：330ｇ                                                                                                        180ｇ＋のせるもち麦20g
+普通： 230ｇ                                    普通： 230ｇ                    ※全部のりには特シール               230ｇ
+                       小盛：180ｇ                                                                                                               大盛・小盛変更不可
+           カレー各種                               ナポリタン・台湾まぜ麺弁当                                SP洋風バラエティ弁当・中華デラックス弁当                             幕の内各種
+                                                                                  ナポリタン
+                       ラベル                                      ラベル                 麺２倍                                                                       ラベル
+                                                                                                               ラベル
+
+                                                                                    の場合
+                   小袋                                                   特
+                                                                                                          小袋
+                               シール                                     シール
+                                                                                                                                                        小袋
+
+
+
+
+     BKカレー容器（身)                                       BKカレー容器（身)                            キョウゼンプレート容器黒（身)                       キョウゼンプレート容器黒（身）
+
+                                                              180ｇ
+           230ｇ                                                                                  普通：230g                                     230ｇ
+                                                    大盛・小盛変更不可
+    BIGタル                    しゃけのり弁当・ビーフカットステーキ重・W今治玉子飯                            ふりかけ          カレー           ガパオライス・ガパオメ
+
+                 ラベル
+
+            小袋
+                                                        ラベル                                                                            ラベル
+
+
+            タルタル
+                                                   小袋                                ふりかけ                                         小袋
+                                                        シール                                                                            新味
+                                                                側                                                                      シール
+                                                                                                  シール
+                                                                面      ラベル                                                ガパオメン
+
+
+
+ ボックス容器黒（身）                           長形重容器黒(身)                               キッズ容器(身)                               デリプレ容器(身)
+                                                                ふりかけ(ライス100g・ふりかけ小袋1ヶ)
+   230g                              230g   ※Wビーフカットステーキ重・W今
+                                               治玉子飯には特シール       カレー(ライス100g・キッズカレー小袋1ヶ)                              230g
+                                                                ※ふりかけ・カレー共に大盛・小盛変更不可
+                                                                                                                                                      ※全国共通版">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/rice-1.png', 'rice - ページ 1')">
+            <img src="images/rice-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="rice" data-page="2"
+             data-searchtext="◆ラベル・弁当シール貼付位置一覧表◆
+                                                                                                                                                           2026.5月更新
+
+                                                                                                                                                      HM店舗モデル開発部
+
+                                                                                                                    ※ラベルシールは縦向き       手羽10本には          ※ラベルシールは縦向き
+                                  かつとじ                                                                ポテトには塩小袋
+                                                                                                                                       特シール
+                     ラベル          の場合                                               ラベル
+                                                    ラベル
+                                                                              小袋                                         ラ              特                   ラ
+                                                                                                             塩小袋                                 小袋
+                                         七味                                                                              ベ             シール                  ベ
+                         シール                                                                                             ル                                  ル
+                                                                             タルタル
+             小   袋
+
+
+                                                                                                                         裏                                 裏
+                                               特シー    新味
+
+
+
+                                                                                                        表                                    表
+                                                ル     シール
+
+ ※中身が見えるように容器の側面に
+                                    Wの場合                  チーズマー
+ 小袋を付ける
+
+                                                                                                        春巻                            ほっとチキン
+透明おかず容器
+                 プリセットNo.1       MO容器透明フタ      プリセットNo.1              ビッグタル        プリセットNo.1          プラスから揚       プリセットNo.1            手羽2種          プリセットNo.1
+ (透明フタ)                                                                                               フライドポテト                         ワンハンドチヂミ
+
+
+                                              ケチャップを入れた
+                                                                                                                                                           うどんだし
+                                   ラベル        カップの側面に貼る                                                                                                     小袋
+
+                                                                                                                                                                七味
+                                                                              小袋
+         小   小 袋小
+             袋       袋
+                                                                                                                   ラベル
+                                                                                          ラベル
+                                         ポテトBOXには                                                                                            ラベル
+                         ※ラベルで
+                         口を閉じる           ケチャップ添付
+             ラベル
+                                                                       ※小袋を、使用する惣菜の場合                        ※フタの中央下側にラベル貼付
+                                                                                                                                             側面にラベル
+
+                                                                                                                   陳列：プリセットNo.4                       陳列：プリセットNo.5
+        バラエティBOX                    プリセットNo.1                     フードパック プリセットNo.1                     サラダ                            ミニうどん
+                                                                                                                   ツーオーダー：プリセットNo.1                   ツーオーダー：プリセットNo.1
+
+
+                                                                                          縦はセロハンテープ、
+
+                                                                  小                       横は輪ゴム
+  小袋         ラベル                                    ラベル                                   小袋は側面に付ける
+                                  小袋                              袋
+
+
+
+
+  新味                                                 新味シール                                 側面にラベル・
+  シール
+                                                                       ラベル                 肉ビビンバの特
+
+                                                                                           シールはその横
+                                                                              特
+うま辛特製豚汁には新味シール貼付                                     まぜ麺の場                                 に貼付
+
+
+                 保管：プリセットNo.96   デリプレ容器                               新角丼容器
+ 特製豚汁各種                                        プリセットNo.1                            プリセットNo.1
+                 提供時：プリセットNo.1     (身)                            (玉子用フタ)">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/rice-2.png', 'rice - ページ 2')">
+            <img src="images/rice-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+    </div>
+  </section>
+
+  <section id="section-chouri" class="section" style="display:none">
+    <div class="section-header">
+      <h2>🍳 調理手順シート（季節商品）</h2>
+      <p class="section-desc">2026年5月版 季節商品の調理・盛付手順</p>
+    </div>
+    <div class="swipe-container" id="swipe-chouri">
+      
+        <div class="page-block" data-section="chouri" data-page="1"
+             data-searchtext="【商品名】中華あんかけごはん   【略語】アンカケ/アンカケメン             【商品名】海鮮中華あんかけごはん    【略語】カイセン/カイセンメン
+
+
+豚バラスライス          1/3袋                        豚バラスライス             1/3袋
+白菜               140g                        白菜                  140g
+玉葱               40g                         玉葱                  40g
+人参               10g                         人参                  10g
+冷凍スナップピース        2ヶ                          冷凍スナップピース           2ヶ
+きくらげ             0.5g                        きくらげ                0.5g
+中華あん小袋           1袋                          中華あん小袋              1袋
+                                             むきエビ                ２ヶ
+ライス              230g                        イカ                  2ヶ     ライス        230g
+
+■調理手順                                        ■調理手順
+①冷蔵保管した｢あんかけ用具材｣を底平煮ザルに入れ、                   ①冷蔵保管した｢あんかけ用具材（海鮮入り）｣を底平煮ザルに入れ、
+ トング等で軽くほぐし、平らにし、フライヤーで約10秒油調する。              トング等で軽くほぐし、平らにし、フライヤーで約10秒油調する。
+②十分に油切りし(約30秒)、｢320カップ(身)｣に盛り付ける。            ②十分に油切りし(約30秒)、｢320カップ(身)｣に盛り付ける。
+
+■盛付手順                                        ■盛付手順
+①加熱した「あんかけ用具材」1食分を ｢320カップ(身)」に              ①加熱した「あんかけ用具材（海鮮入り）」1食分を
+ 盛り付ける。                                       ｢320カップ(身)」に盛り付ける。
+②｢320カップ(身)」に入れた具材の上に、｢きくらげボイル後              ②｢320カップ(身)」に入れた具材の上に、｢きくらげボイル後
+ 約4g(2～4ヶ）｣を盛り付ける。                            約4g(2～4ヶ）｣を盛り付ける。
+③具材の上に「中華あん」を絞り入れ、トング等で                      ③具材の上に「中華あん」を絞り入れ、トング等で
+ 軽く（2～3回程度）あんと具材を絡ませるように混ぜる。                  軽く（2～3回程度）あんと具材を絡ませるように混ぜる。
+④｢320カップ(フタ)｣をし、ラベルシールを貼り                    ④｢320カップ(フタ)｣をし、ラベルシール、特シールを貼り、
+ ライスとともに提供する。                                  ライスとともに提供する。
+
+
+【商品名】中華あんかけ麺     【略語】アンカケメン 【小袋】ソース小袋/和がらし   【商品名】海鮮中華あんかけ麺      【略語】カイセンメン 【小袋】ソース小袋/和がらし
+
+豚バラスライス          1/3袋                        豚バラスライス        1/3袋
+白菜               140g                        白菜             140g
+玉葱               40g                         玉葱             40g
+人参               10g                         人参             10g
+冷凍スナップピース        2ヶ                          冷凍スナップピース      2ヶ
+きくらげ             0.5g                        きくらげ           0.5g
+中華あん小袋           1袋                          中華あん小袋         1袋
+ちゃんぽん麺           2ヶ                          むきエビ           ２ヶ
+                                             イカ             2ヶ   ちゃんぽん麺  2ヶ
+■調理手順                                        ■調理手順
+①冷蔵保管した｢あんかけ用具材｣を底平煮ザルに入れ、                   ①冷蔵保管した｢あんかけ用具材（海鮮入り）｣を底平煮ザルに入れ、
+ トング等で軽くほぐし、平らにし、フライヤーで約10秒油調する。               トング等で軽くほぐし、平らにし、フライヤーで約10秒油調する。
+②十分に油切りし(約30秒)、｢320カップ(身)｣に盛り付ける。            ②十分に油切りし(約30秒)、｢320カップ(身)｣に盛り付ける。
+③ジップロック(大)に冷蔵解凍した「ちゃんぽん麺」2ヶを入れ、              ③ジップロック(大)に冷蔵解凍した「ちゃんぽん麺」2ヶを入れ、
+ フタをずらし、約30秒レンジアップする。                          フタをずらし、約30秒レンジアップする。
+■盛付手順                                        ■盛付手順
+①加熱した「あんかけ用具材」1食分を ｢320カップ(身)」に              ①加熱した「あんかけ用具材（海鮮入り）」1食分を
+ 盛り付ける。                                        ｢320カップ(身)」に盛り付ける。
+②｢320カップ(身)」に入れた具材の上に、｢きくらげボイル後              ②｢320カップ(身)」に入れた具材の上に、｢きくらげボイル後
+ 約4g(2～4ヶ）｣を盛り付ける。                             約4g(2～4ヶ）｣を盛り付ける。
+③具材の上に「中華あん」を絞り入れ、トング等で                      ③具材の上に「中華あん」を絞り入れ、トング等で
+ 軽く（2～3回程度）あんと具材を絡ませるように混ぜる。                   軽く（2～3回程度）あんと具材を絡ませるように混ぜる。
+④加熱した「ちゃんぽん麺」1食分を容器に入れ、「油」4㏄を                ④加熱した「ちゃんぽん麺」1食分を容器に入れ、「油」4㏄を
+ 全体に回しかけ、トング等で混ぜ合わせ、蓋をする。                      全体に回しかけ、トング等で混ぜ合わせ、蓋をする。
+⑤｢320カップ(フタ)｣をし、ラベルシールを貼り                    ⑤｢320カップ(フタ)｣をし、ラベルシール、特 シールを貼り
+ 「ちゃんぽん麺」とともに提供する。                            「ちゃんぽん麺」とともに提供する。
+【商品名】黒酢酢豚＆春巻弁当     【略語】スブタ                   【商品名】W黒酢酢豚弁当(肉2倍)   【略語】ダブルスブタ
+
+酢豚用肉             4ケ                          酢豚用肉                ８ケ
+酢豚用ミックス粉         13g                         酢豚用ミックス粉            26g
+冷凍赤ピーマン乱切り       1ケ                          冷凍赤ピーマン乱切り          2ケ
+冷凍緑ピーマン乱切り       1ケ                          冷凍緑ピーマン乱切り          2ケ
+玉葱(角切り)          40ｇ                         玉葱(角切り)             80ｇ
+黒酢のたれ            28ｃｃ                        黒酢のたれ               28cc×2杯
+春巻               1本
+
+
+■調理手順                                        ■調理手順
+①粉付けした「酢豚用肉」4ケを約2分30秒油調する。                   ①粉付けした「酢豚用肉」8ケを約2分30秒油調する。
+②冷凍のままの「春巻」１本を約５分油調する。                       ②ホームパック（中）にレンジアップした「赤・緑ピーマン」各2ケ、
+③ホームパック（小）にレンジアップした「赤・緑ピーマン」各1ケ、              油調した「玉葱角切り」約60g、「黒酢のたれ」２８cc×２杯を入れ
+ 油調した「玉葱角切り」約30g、「黒酢のたれ」２８ccを入れ、フタ            フタをずらし約2５秒レンジアップする。
+ をずらし約１５秒レンジアップする。                           ③ボウルなどに油調した「酢豚用肉」８ケとレンジアップした「酢豚
+④ボウルなどに油調した「酢豚用肉」４ケとレンジアップした「酢豚               用具材」１食分を入れ、全体にたれが絡むようによく混ぜる。
+ 用具材」１食分を入れ、全体にたれが絡むようによく混ぜる。
+■盛付手順                                        ■盛付手順
+①「おかずセット」の手前に調理した酢豚１食分を盛付ける。                 ①「おかずセット」に調理した酢豚を盛付ける。
+②上部にバラン１ケ、ハルマキを盛付ける。                         ②「おかず容器（透明フタ）」をし、ラベルシールを貼り、ワゴムを
+③「おかず容器（透明フタ）」をし、ラベルシールを貼り、ワゴムを               をかけ提供する。
+ をかけ提供する。">
+          <div class="page-header">
+            <span class="page-badge">1 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-1.png', 'chouri - ページ 1')">
+            <img src="images/chouri-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="2"
+             data-searchtext="【商品名】中華デラックス弁当   【略語】デラックス 【小袋】減塩醤油小袋     【商品名】白身フライカレー
+                                                      【略語】シロミカレー 【小袋】カレースパイス小袋
+
+酢豚用肉       4ケ
+酢豚用ミックス粉   13g
+冷凍赤ピーマン乱切り 1ケ
+冷凍緑ピーマン乱切り 1ケ
+玉葱(角切り)    40ｇ                            ライス     230g
+黒酢のたれ      28ｃｃ                           カレー     1袋
+春巻         1本                             白身フライ   1ヶ
+焼売         2ケ
+かつおたくあん／小松菜と油揚げの和え物 各10g
+
+■調理手順
+①粉付けした「酢豚用肉」4ケを約2分30秒油調する。                かつおたくあん 10g
+②冷凍のままの「春巻」１本を約５分油調する。
+③ホームパック（小）にレンジアップした「赤・緑ピーマン」各1ケ、          ■調理手順
+ 油調した「玉葱角切り」約30g、「黒酢のたれ」２８ccを入れ、フタ        ①鍋にお湯を沸かす。
+ をずらし約１５秒レンジアップする。                        ②「カレー」を入れ6分ボイルする。（再ボイル：6分）
+④ボウルなどに油調した「酢豚用肉」４ケとレンジアップした「酢豚           ③「白身フライ」1ヶをフライヤーで約5分間揚げる。
+ 用具材」１食分を入れ、全体にたれが絡むようによく混ぜる。             ■盛付手順
+⑤焼売２ケを「ホームパック中」に入れ、約３０秒レンジアップする。          ④「BKカレー容器」に「ライス」230g、ポケットに
+■盛付手順                                      「かつおたくあん」10gを盛る。
+①キョウゼンプレート容器(身)に調理した酢豚を盛付け、バラン１枚          ⑤「白身フライ」1ヶを「ライス」の上に盛り付ける。
+ その上に春巻１本を盛付ける。                           ⑥ボイルした「カレー」を4～5回振って開封し、盛り付ける。
+②ポケットに調理した焼売２ケを盛付け、フタをしラベルシールを            ⑦フタをしてラベルシールを貼り、「ワゴム」をかけ、
+ 貼り、ワゴムをかけ小袋はさみ提供する。                       「カレースパイス小袋」を貼付し、提供する。
+                                          ※フタを身の内側に入れ込むようにして、しっかり閉める
+                                            （汁漏れ防止）
+【商品名】ダブルロースかつ丼
+            【略語】ダブルカツドン 【小袋】七味唐辛子小袋                       【略語】ダブルカツトジ 【小袋】七味唐辛子小袋
+                                          【商品名】ダブルロースかつとじ弁当
+
+
+ライス 230g                                  衣付きとんかつ       2枚
+衣付とんかつ 2ヶ                                 玉葱（垂直5mmカット） 15g
+玉葱(5mmスライス)                               丼たれ（希釈後）   120cc
+         15g                              鶏卵           1ヶ
+丼たれ（希釈後）120cc
+鶏卵       1ヶ
+
+
+バラン     1枚
+かつおたくあん 5g
+
+■調理・盛付手順
+①冷凍のままの「衣付とんかつ」1枚を4分30秒間揚げ、油切り後、          ■調理・盛付手順
+ 6等分にカットする。                               ①冷凍のままの「衣付とんかつ」をフライヤーで約4分30秒揚げる。
+②親子鍋に「玉葱」15g、「衣付とんかつ」2枚、希釈した「丼たれ」         ②油切りした「衣付とんかつ」を6等分にカットする。
+ 100cc、軽く攪拌した「鶏卵」2/3ヶ分をとんかつ全体にかけ、         ③親子鍋に「玉葱」15g、カットした「衣付とんかつ」2枚をセットする。
+ 残り1/3ヶ分は外に円を描くようにかけて蓋をする。                ④希釈した「丼たれ」120cc（丼用レードル使用）を加え、
+③電磁調理器「中」設定で加熱する。（約1分20秒）                  軽く攪拌した「鶏卵」2/3ヶ分をとんかつ全体にかけ、
+④「新角丼容器（身）」に「ライス」230gを盛り、調理したかつとじを         残り1/3ヶ分は外に円を描くようにかけて蓋をする。
+ のせる。                                     ⑤電磁調理器「中」設定で加熱する。（約1分20秒）
+⑤「バラン」1枚「かつおたくあん」5gをのせ、フタをし、ラベルシール、特シール   ⑥「鍋容器」に盛り付け、フタをし、ラベルシール、特シールを貼り、
+ を貼り、「ワゴム」をかけ、「七味唐辛子小袋」を貼付し、提供する。          「ワゴム」をかけ、「七味唐辛子小袋」を貼付し提供する。">
+          <div class="page-header">
+            <span class="page-badge">2 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-2.png', 'chouri - ページ 2')">
+            <img src="images/chouri-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="3"
+             data-searchtext="【商品名】海鮮天丼    【略語】テンドン     新天丼のたれ小袋       【商品名】上・海鮮天丼   【略語】ジョウテンドン 新天丼のたれ小袋
+
+                    ライス          230g                         ライス            230g
+                    れんこん天        1ヶ                           れんこん天          1ヶ
+                    スナップピース天     1ヶ                           スナップピース天       1ヶ
+                    イカ天          1ヶ                           イカ天            1ヶ
+                    さつまいも天       1ヶ                           さつまいも天         1ヶ
+                    アジ天          1ヶ                           アジ天            1ヶ
+                    エビ天          2ヶ                           エビ天            5ヶ
+
+                    バラン          1枚                           バラン            1枚
+                    特撰ごま菜漬け      5g                           特撰ごま菜漬け        5g
+
+■調理・盛付手順                                 ■調理・盛付手順
+①冷凍のままの「むきエビ打粉付き」2ヶ、「イカ切身」1ヶ、            ①冷凍のままの「むきエビ打粉付き」2ヶ、「イカ切身」1ヶ、
+ 「冷凍さつまいも」1ヶ、「アジ」1ヶを「天ぷら粉」につけ、            「冷凍さつまいも」1ヶ、「アジ」1ヶを「天ぷら粉」につけ、
+ 約3分油調する。                                 約3分油調する。
+②冷凍のままの「れんこんスライス」1ヶ、                     ②冷凍のままの「れんこんスライス」1ヶ、
+ 「冷凍スナップピース」1ヶ、を「天ぷら粉」につけ、約1分30秒          「冷凍スナップピース」1ヶ、を「天ぷら粉」につけ、約1分30秒
+ 油調する。                                    油調する。
+③「新角丼容器（身）」に「ライス」230gを盛り、油調した            ③「新角丼容器（身）」に「ライス」230gを盛り、油調した
+ 「れんこん天」「スナップピース天」「さつまいも天」「イカ天」           「れんこん天」「スナップピース天」「さつまいも天」「イカ天」
+ 「アジ天」1個、「エビ天」2個を盛り付ける。                   「アジ天」1個、「エビ天」5個を盛り付ける。
+④「バラン」1枚「特撰ごま菜漬け」5gをのせ、フタをし、             ④「バラン」1枚「特撰ごま菜漬け」5gをのせ、フタをし、
+ ラベルシールを貼り、「ワゴム」をかけ、「新天丼のたれ小袋」を           ラベルシールを貼り、「ワゴム」をかけ、「新天丼のたれ小袋」を
+ 貼付し、提供する。                                貼付し、提供する。
+
+
+【商品名】海鮮天とじ丼 【略語】テントジ      【小袋】七味唐辛子      海鮮天ぷら弁当       【略語】テンプラ    新天丼のたれ小袋
+
+                    ライス          230g
+                    れんこん天        1ヶ                               れんこん天        1ヶ
+                    スナップピース天     1ヶ                               スナップピース天     1ヶ
+                    イカ天          1ヶ                               イカ天          1ヶ
+                    さつまいも天       1ヶ                               さつまいも天       1ヶ
+                    アジ天          1ヶ                               アジ天          1ヶ
+                    エビ天          2ヶ                               エビ天          2ヶ
+                    丼たれ（希釈後）     100cc
+                    鶏卵           1ヶ
+                    バラン          1枚
+                    かつおたくあん      5g
+■調理・盛付手順                                 ■調理・盛付手順
+①冷凍のままの「むきエビ打粉付き」2ヶ、「イカ切身」1ヶ、            ①冷凍のままの「むきエビ打粉付き」2ヶ、「イカ切身」1ヶ、
+ 「冷凍さつまいも」1ヶ、「アジ」1ヶを「天ぷら粉」につけ、            「冷凍さつまいも」1ヶ、「アジ」1ヶを「天ぷら粉」につけ、
+ 約3分油調する。                                 約3分油調する。
+②親子鍋に油調した「れんこん天」「スナップピース天」               ②冷凍のままの「れんこんスライス」1ヶ、
+ 「さつまいも天」「イカ天」「アジ天」「エビ天」                  「冷凍スナップピース」1ヶ、を「天ぷら粉」につけ、約1分30秒
+ 希釈した「丼たれ」100ccを入れ、軽く攪拌した「鶏卵」2/3ヶ分、       油調する。
+ 残り1/3ヶ分は外に円を描くようにかけて蓋をする。               ③「おかずセット」に油調した「れんこん天」
+③電磁調理器「中」設定で加熱する。（約1分20秒）                 「スナップピース天」「さつまいも天」「イカ天」「アジ天」
+④「新角丼容器（身）」に「ライス」230gを盛り、調理した天とじを         「エビ天」を盛り付ける。
+ のせる。                                    ④フタをし、ラベルシールを貼り、「ワゴム」をかけ、
+⑤「バラン」1枚「かつおたくあん」5gをのせ、フタをし、              「新天丼のたれ小袋」貼付し、提供する。
+ ラベルシールを貼り、「ワゴム」をかけ、「七味唐辛子小袋」を
+ 貼付し、提供する。
+もちミニ 海鮮天丼    【略語】ムギテンドン   【小袋】新天丼のたれ小袋
+
+
+                  れんこん天          1ヶ
+                  スナップピース天       1ヶ
+                  イカ天            1ヶ
+                  さつまいも天         1ヶ
+                  エビ天            1ヶ
+                  アジ天            1ヶ
+                  バラン            1枚
+                  特撰ごま菜漬け        5g
+
+
+                  ライス          180g
+                  のせるもち麦4穀      20ｇ
+■盛付手順
+①「ライス」180ｇを盛り付ける。
+②｢ライス｣に解凍した｢もち麦｣20ｇを広げて盛り付ける。
+  「もち麦」20ｇをのせ、全体に広げる。
+③右上部から「れんこん天」、｢スナップピース天｣を盛り付ける。
+④左上部に｢さつまいも天｣を盛り付ける。
+⑤左部から｢イカ天｣、｢アジ天｣を盛り付ける。
+⑥左下部に｢エビ天｣を盛り付け、右下に「特撰ごま菜漬け」を盛付ける。
+⑦フタをして、ラベルシールを貼り、ワゴムをかけ、
+ ｢天丼のたれ小袋｣をはさみ、提供する。">
+          <div class="page-header">
+            <span class="page-badge">3 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-3.png', 'chouri - ページ 3')">
+            <img src="images/chouri-3.png" alt="ページ3" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="4"
+             data-searchtext="ビーフカットステーキ重          【略称】ステジュウ           HMステーキソース小袋35g             Wビーフカットステーキ重      【略称】ダブルステジュウ 和風ステーキソース小袋25ｇ×2
+
+
+
+
+ライス                  230g                                           ライス               230g
+カットステーキ100             1袋                                           カットステーキ100          2袋
+新オリジナルスパイス             1振り                                          新オリジナルスパイス          各2振り
+乱切りポテト                 3ヶ                                           乱切りポテト              3ヶ
+ブロッコリー                 2～4ヶ                                         ブロッコリー              2～4ヶ
+
+      ※ステーキ1食≒85g（約6枚）                                              ※ステーキ1食≒170g（約12枚）
+
+■調理手順                                                               ■調理手順
+①中華鍋を強火で熱し、油１杯を入れて全体になじませる。                                         ①中華鍋を強火で熱し、油１杯を入れて全体になじませる。
+②解凍した｢カットステーキ｣1袋を中華鍋に入れ、肉を広げ、                                       ②解凍した｢カットステーキ｣2袋を中華鍋に入れ、肉を広げ、
+ 「オリジナルスパイス」を1振りする。                                                  「オリジナルスパイス」を2振りする。
+③片面を約25秒炒め、肉を裏返し、赤みがなくなるまで                                          ③片面を約35秒炒め、肉を裏返し、赤みがなくなるまで
+ さらに約25秒炒める。                                                         さらに約35秒炒める。
+※裏面に返した後は、完全に赤みがなくなるまで、全体を                                          ※裏面に返した後は、完全に赤みがなくなるまで、全体を
+ かき混ぜながら火を通して下さい。                                                    かき混ぜながら火を通して下さい。
+④冷凍のままの｢乱切りポテト｣3ヶをフライヤーで                                            ④冷凍のままの｢乱切りポテト｣3ヶをフライヤーで
+ 約3分30秒油調する。                                                         約3分30秒油調する。
+■盛付手順                                                               ■盛付手順
+①容器右側1/3を目安に、上部に油調した「乱切りポテト」3ヶ、                                     ①容器右側1/3を目安に、上部に油調した「乱切りポテト」3ヶ、
+ 調理した「ブロッコリー」2～4ヶを盛り付ける。                                             調理した「ブロッコリー」2～4ヶを盛り付ける。
+②調理した「カットステーキ肉」約85gを盛り付ける。                                          ②調理した「カットステーキ肉」約170gを盛り付ける。
+
+スペシャル洋風バラエティ弁当       【略語】スペシャル           【小袋】HMステーキソース小袋35g・ソース小袋   ビーフカットステーキ弁当      ステベン（ノミ）          和風ステーキソース小袋25ｇ
+
+                                    小松菜と油揚げの
+                                         和え物 10g                    カットステーキ100           2袋
+                                    かつおたくあん 10g                     新オリジナルスパイス           各2振り
+                                    スパゲティ    10g                    乱切りポテト               3～5ヶ
+                                    (下に敷く）                          ブロッコリー               2～4ヶ
+                                    プチハンバーグ 1ヶ                      キャベツ角切り              50g
+                                    和風オニオンソース
+                                             18cc
+ライス    230g      スパゲティ          10g から揚      1ヶ                     ■調理手順
+黒ごま    0.2g      (下に敷く)             エビフライ    1ヶ                     ①中華鍋を強火で熱し、油１杯を入れて全体になじませる。
+                 乱切りポテト             具だくさんタルタル                       ②解凍した｢カットステーキ｣1袋を中華鍋に入れ、肉を広げ、
+                                3ヶ    ソース    5g                      「オリジナルスパイス」を1振りする。
+                 ウインナー          1ヶ  バラン      1枚                     ③片面を約25秒炒め、肉を裏返し、赤みがなくなるまで
+                 丸型メンチカツ                                             さらに約25秒炒める。
+■事前準備                                                               ※裏面に返した後は、完全に赤みがなくなるまで、全体を
+①解凍済の「ウインナー」に包丁で5mm以下の切込み2本入れ、                                       かき混ぜながら火を通して下さい。
+ 1分10秒間揚げ、冷凍の「プチハンバーグ」を2分30秒間揚げる                                    ④冷凍のままの｢乱切りポテト｣3ヶをフライヤーで
+②「乱切りポテト」を約3分30秒、「丸型メンチカツ」を                                          約3分30秒油調する。
+  約5分、「から揚」、「エビフライ」を約4分揚げる。                                         ⑤ホームパック（中）に「キャベツ（角切り）50ｇを入れ、フタをずら
+■調理・盛付手順                                                             して約30秒レンジアップする。
+③「スパゲティ」「ウインナー」「ポテト」その左側に「メンチカツ」を盛り付ける。                             ■調理・盛付手順
+④「メンチカツ」の手前に「バラン」1枚置き、「から揚」、その左に                                    ⑥おかずセットの右上に「キャベツ（角切り）」を盛付け、「乱切りポ
+ 「エビフライ」を盛り付け上に「タルタルソース」を盛り付ける。                                      テト」「ブロッコリー」を盛付ける。
+⑤「プチハンバーグ」に「和風オニオンソース」をかける                                          ⑦「カットステーキ」1食分を盛付け、フタをしラベルシールを貼付し
+⑥ライスの上に調理した「ビーフカットステーキ」1食分を盛付ける。                                     小袋をはさみ提供する。
+
+ 辛旨台湾まぜ麺/温玉付き        【略語】マゼメン/オンタママゼメン         辛旨唐辛子S小袋             辛旨台湾まぜ麺弁当/温玉付き【略語】マゼライス/オンタママゼライス     辛旨唐辛子S小袋
+
+ちゃんぽん麺        2ヶ                                                    ライス     180ｇ
+ニラ            20g                                                   ちゃんぽん麺  2ヶ
+もやし           100g                                                  ニラ      20g
+肉みそ           35g                                                   もやし     100g
+                                                                    肉みそ     35g
+                                                                    かつおたくあん １０ｇ
+
+■調理手順                                                               ■調理手順
+①ジップロック(角大)に冷蔵解凍した「ちゃんぽん麺」2ヶを入れ、                                    ①ジップロック(角大)に冷蔵解凍した「ちゃんぽん麺」2ヶを入れ、
+  フタをずらし、約30秒レンジアップする。                                                フタをずらし、約30秒レンジアップする。
+②中華鍋を強火で熱し、油１杯を入れて全体になじませる。                                         ②中華鍋を強火で熱し、油１杯を入れて全体になじませる。
+③「もやし100ｇ」「ニラ20ｇ」を入れ、約30秒炒め、火を止め                                    ③「もやし100ｇ」「ニラ20ｇ」を入れ、約30秒炒め、火を止め
+ 「まぜめんのたれ」36ｃｃを入れ、約10秒絡める。                                           「まぜめんのたれ」36ｃｃを入れ、約10秒絡める。
+                                                                    ■盛付手順
+■盛付手順                                                               ①BKカレー容器（身）にライス180ｇを盛り付け、ポケットに「かつお
+①加熱した「ちゃんぽん麺」1食分を容器に入れ、「油」4㏄を                                         たくあん」10ｇを盛り付ける
+  全体に回しかける。                                                         ②加熱した「ちゃんぽん麺」1食分を容器に入れ、「油」4㏄を
+②調理した「ニラもやし」1食分（約140ｇ）をちゃんぽん麺の上に                                      全体に回しかける。
+ 盛り付ける。                                                             ③調理した「ニラもやし」1食分（約140ｇ）をちゃんぽん麺の上に
+③中央に解凍した「肉みそ」35ｇを盛り付ける。                                              盛り付ける。
+④フタをしてラベルシールを貼り、「ワゴム」をかけ、                                           ④中央に解凍した「肉みそ」35ｇを盛り付ける。
+ 「辛旨唐辛子S小袋」をはさみ提供する。                                                ⑤フタをしてラベルシールを貼り、「ワゴム」をかけ、
+⑤温玉付きの場合はハイデンパック等に｢温玉｣1ヶを入れ、口を縛り                                     「辛旨唐辛子S小袋」をはさみ提供する。
+ 案内シールを貼付し、商品と一緒に提供する。                                              ⑥温玉付きの場合はハイデンパック等に｢温玉｣1ヶを入れ、口を縛り
+                                                                     案内シールを貼付し、商品と一緒に提供する。">
+          <div class="page-header">
+            <span class="page-badge">4 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-4.png', 'chouri - ページ 4')">
+            <img src="images/chouri-4.png" alt="ページ4" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="5"
+             data-searchtext="さっぱりおろしかつめし弁当   【略語】カツベン   【小袋】かつめしのタレ、わさび   さっぱりおろしかつめし       【略語】カツメシ       【小袋】かつめしのタレ、わさび
+
+
+
+
+                       衣付きとんかつ        1枚                                  衣付とんかつ         1枚
+                       キャベツ           50ｇ                                 キャベツ           50ｇ
+                       大根おろし          30ｇ                                 大根おろし          30ｇ
+                                                                          紅生姜            5g
+
+
+
+
+■調理手順
+①｢衣付とんかつ｣1枚を約4分30秒油調し、6等分にカットする。             ■調理手順
+②フードケースに「大根おろし(水切り後)」30gを入れる。                ①｢衣付とんかつ｣1枚を約4分30秒油調し、6等分にカットする。
+ （ディッシャー♯27 すりきり 2杯）                         ②フードケースに「大根おろし(水切り後)」30gを入れる。
+③ホームパック(中)に｢キャベツ(角切り)｣50ｇを入れ、フタをずら            （ディッシャー♯27 すりきり 2杯）
+ して、1800ｗレンジで約３0秒レンジアップする。                   ③ホームパック(中)に｢キャベツ(角切り)｣50ｇを入れ、フタをずら
+■盛付手順                                         して、1800ｗレンジで約３0秒レンジアップする。
+①おかずセットの右上に調理した「キャベツ（角切り）」1食分                ■盛付手順
+ （約45ｇ）を盛り付ける。                               ①新角丼容器（身）にライス230ｇを盛り付け、調理した「キャベツ
+②調理した「とんかつ」1枚を6等分にカットし盛付け、右下にフード              （角切り）」1食分（約45ｇ）を盛り付ける。
+ ケースに入れた「大根おろし（水切り後）」30ｇを盛り付ける。」             ②調理した「とんかつ」1枚を6等分にカットし盛付け、左上にフード
+                                              ケースに入れた「大根おろし（水切り後）」30ｇを盛り付ける。」
+                                             ③右下に「バラン」、「紅生姜5g」を盛り付け、フタをして提供する。
+
+
+
+
+（温玉付き）焼肉ビビンバ (オンタマ）ビビンバ    ビビンバのたれ小袋         （温玉付き）肉増し焼肉ビビンバ   ニク(オンタマ）ビビンバ   ビビンバのたれ小袋
+
+                     焼肉         約５５ｇ                               焼肉         約165g
+                     小松菜と油揚げの和え物 25g                               小松菜と油揚げの和え物 25g
+                     ゆず大根        25g                               ゆず大根         25g
+                     白菜キムチ       25g                               白菜キムチ        25g
+                     豆もやしナムル     25g                               豆もやしナムル      25g
+
+
+
+■調理・盛付手順                                     ■調理・盛付手順
+①中華鍋を強火で熱し、油１杯を入れて全体になじませる。                  ①中華鍋を強火で熱し、油１杯を入れて全体になじませる。
+②｢牛肉スライス｣0.5袋、｢玉葱｣15ｇ、｢人参｣5g、                ②｢牛肉スライス｣1.5袋、｢玉葱｣45ｇ、｢人参｣15g、
+ ｢冷凍にんにくの芽｣5g（≒4本～5本）を中華鍋に入れ、                 ｢冷凍にんにくの芽｣15g（≒12本～15本）を中華鍋に入れ、
+ 肉を広げながら約40秒炒める。                              肉を広げながら約50秒炒める。
+③火を止め、｢カルビ焼肉のたれ｣14㏄を入れ約10秒絡める。               ③火を止め、｢カルビ焼肉のたれ｣14㏄×3杯を入れ約10秒絡める。
+④「新角丼容器（身）」に「ライス」250gを盛り、左下に                 ④「新角丼容器（身）」に「ライス」250gを盛り、左上に
+ 小松菜和え物25gを盛り付ける。                             小松菜和え物25gを盛り付ける。
+⑤上半分にゆず大根25g、白菜キムチ25g、豆もやしナムル25g             ⑤小松菜和え物の横にゆず大根25g、白菜キムチ25g、
+ を盛り付ける。                                      豆もやしナムル25gを並べて盛り付ける。
+⑥右下に焼肉1食を盛り付ける。                              ⑥容器下部に肉増し1食（約165g）を盛り付ける。
+⑦フタをし、ラベルシールを貼り、「ワゴム」をかけ、                    ⑦フタをし、ラベルシール、「特シール」を貼り、「ワゴム」をかけ、
+ 「ビビンバのたれ小袋」を貼付し、提供する。                        「ビビンバのたれ小袋」を貼付し、提供する。
+（温玉付きの場合）                                    （温玉付きの場合）
+⑦新角丼容器（玉子用フタ）に温玉を入れ、セロハンテープで留め、              ⑦新角丼容器（玉子用フタ）に温玉を入れ、セロハンテープで留め、
+  フタをし、ラベルシールを貼り、「ワゴム」をかけ、                     フタをし、ラベルシール、「特シール」を貼り、「ワゴム」をかけ、
+  「ビビンバのたれ小袋」を貼付し、提供する。                        「ビビンバのたれ小袋」を貼付し、提供する。">
+          <div class="page-header">
+            <span class="page-badge">5 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-5.png', 'chouri - ページ 5')">
+            <img src="images/chouri-5.png" alt="ページ5" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="6"
+             data-searchtext="麻辣湯弁当            【略語】マーラー     【小袋】          チーズ麻辣湯弁当         【略語】チーズマーラー   【小袋】
+
+
+豚バラスライス            1/2袋                     豚バラスライス            1/2袋
+キャベツ               80ｇ                      キャベツ               80ｇ
+玉葱                 30ｇ                      玉葱                 30ｇ
+人参                 10ｇ                      人参                 10ｇ
+もやし                １５ｇ                      もやし                １５ｇ
+きくらげ（戻し後）          約8g(約6ヶ)                 きくらげ（戻し後）          約8g(約6ヶ)
+タンミョン（戻し後）         70ｇ                      タンミョン（戻し後）         70ｇ
+麻辣湯のたれ（希釈後）        60cc×２杯                  麻辣湯のたれ（希釈後）        60cc×２杯
+                                            シュレッドチーズ           ２５ｇ
+
+■調理手順                                       ■調理手順
+①乾燥のままの｢タンミョン｣を沸騰したたっぷりのお湯でガス台の             ①乾燥のままの｢タンミョン｣を沸騰したたっぷりのお湯でガス台の
+ 場合は｢中火｣、電磁調理器の場合は｢中設定｣で約18分ボイルする。           場合は｢中火｣、電磁調理器の場合は｢中設定｣で約18分ボイルする。
+②ボイル後ザルにあげ流水で約３０秒粗熱をとり、水気を切る。               ②ボイル後ザルにあげ流水で約３０秒粗熱をとり、水気を切る。
+③ボイル後油を入れ、「タンミョン」全体になじませ、「キャベツ」80g          ③ボイル後油を入れ、「タンミョン」全体になじませ、「キャベツ」80g
+ 「玉葱」３０g、「人参」１０ｇ、「もやし」１５ｇ、「きくらげ（戻し後）」        「玉葱」３０g、「人参」１０ｇ、「もやし」１５ｇ、「きくらげ（戻し後）」
+ 約８g、「タンミョン（戻し後）」７０ｇを「MO容器(対応身)」に入れ、         約８g、「タンミョン（戻し後）」７０ｇを「MO容器(対応身)」に入れ、
+「豚バラスライス」1/2袋、希釈した「麻辣湯のたれ」１２０ccを入れ           「豚バラスライス」1/2袋、希釈した「麻辣湯のたれ」１２０ccを入れ
+ジップロックのフタをずらして置き、約１分４０秒レンジアップする。             ジップロックのフタをずらして置き、約１分４０秒レンジアップする。
+④レンジアップ後、トングなどで整え、フタをし、ラベルシールを              ④レンジアップ後、トングなどで整え、「シュレッドチーズ」２５ｇを
+ 貼り、提供する。                                    盛付け、フタをし、ラベルシール・新味シールを貼り、提供する。
+
+
+
+
+ガパオライス           【略語】ガパオ      【小袋】辛味ナンプラー   ガパオまぜ麺           【略語】ガパオメン      【小袋】辛味ナンプラー
+
+鶏モモミンチ肉            75g                      鶏モモミンチ肉            75g
+ガパオ炒めの素            18cc                     ガパオ炒めの素            18cc
+目玉焼き               1ケ                       目玉焼き               1ケ
+レモン 1/12           1ケ                       レモン 1/12           1ケ
+フードケース緑            １枚                       フードケース緑            １枚
+ミックスピーマンスライス       １０g                      ミックスピーマンスライス       １０g
+千切サラダMIX           ２０ｇ                      千切サラダMIX           ２０ｇ
+                                            ちゃんぽん麺             ２ケ
+
+
+■調理手順                                       ■調理手順
+①「目玉焼き」をフライヤーで約１５秒油調する。                     ①「目玉焼き」をフライヤーで約１５秒油調する。
+②「ミックスピーマンスライス」を底平煮ザルへ入れ、約１０秒油調する。          ②「ミックスピーマンスライス」を底平煮ザルへ入れ、約１０秒油調する。
+③中華鍋を強火で熱し、油１杯をいれ全体に馴染ませる。                  ③中華鍋を強火で熱し、油１杯をいれ全体に馴染ませる。
+④冷凍のままの「鶏モモミンチ肉」７５を赤みがなくなるまで約１分炒める。         ④冷凍のままの「鶏モモミンチ肉」７５を赤みがなくなるまで約１分炒める。
+⑤火を止め、「ガパオ炒めの素」18ｃｃ(27 ｇ）を入れ水分を飛ばす          ⑤火を止め、「ガパオ炒めの素」18ｃｃ(27 ｇ）を入れ水分を飛ばす
+ ようにして炒める。                                   ようにして炒める。
+■盛付手順                                       ■盛付手順
+①「ライス」２３０ｇを盛付け、上半分の中央に「千切りサラダＭＩＸ」           ①「ちゃんぽん麺」１食分（約２００ｇ）を盛付け、「油」4ｃｃを全体に回し
+ ２０ｇを盛付け、下半分に調理した「ガパオ炒め」１食分（約７５ｇ）            かける。
+ を盛付ける。                                     ②上半分の中央に「千切りサラダＭＩＸ」２０ｇを盛付け、下半分に
+②ガパオ炒めの上に「ミックスピーマンスライス」約９gを盛付け、              調理した「ガパオ炒め」１食分（約７５ｇ）を盛付ける。
+左側に「フィルムケース緑」に入れたレモン1/2ケ、右側に目玉焼き１ケ          ③ガパオ炒めの上に「ミックスピーマンスライス」約９gを盛付け、
+を盛付けフタをし、ラベルシールを貼り「ナンプラー小袋」を貼付し              左側に「フィルムケース緑」に入れたレモン1/2ケ、右側に目玉焼き１ケ
+ 提供する。                                       を盛付けフタをし、ラベルシール、新味シールを貼り「ナンプラー小袋」
+                                             を貼付し提供する。
+【商品名】今治焼豚玉子飯 【略語】イマバリ                       【商品名】W今治焼豚玉子飯    【略語】ダブルイマバリ
+
+ライス              230g                       ライス              230g
+焼豚               50ｇ                        焼豚               100ｇ
+鶏卵               2ヶ                         鶏卵               2ヶ
+紅生姜              5ｇ                         紅生姜              5ｇ
+バラン              1枚                         バラン              1枚
+焼豚玉子飯のたれ         18cc                       焼豚玉子飯のたれ         36cc
+焼豚玉子飯のたれ（上掛け用）   ５ｇ                         焼豚玉子飯のたれ（上掛け用）   ５ｇ
+
+
+
+
+■調理・盛付手順                                    ■調理・盛付手順
+①ホームパック(中)に解凍した「焼豚チャーシュー」50g、「玉子飯           ①ジップロック（角大）解凍した「焼豚チャーシュー」１００g、「玉子飯
+ のたれ」18cc、「油」4ccを入れ、フタをずらし約20秒レンジアップする。      のたれ」36cc、「油」4ccを入れ、フタをずらし約30秒レンジアップする。
+②新角丼容器（身）にライス(230ｇ）を盛り、調理した「焼豚」を下側          ②長形重容器黒(身)にライス(230ｇ）を盛り、調理した「焼豚」を全体に盛付ける。
+ 8割程度に盛り付ける                                 ③上側に調理した「目玉焼き」2ヶを盛り付け、玉子飯のたれ５ｇを
+③上側に調理した「目玉焼き」2ヶを盛り付け、玉子飯のたれ５ｇを             全体に上掛けし、目玉焼き全体に「焼豚玉子飯用コショー」3振りする。
+全体に上掛けし、目玉焼き全体に「焼豚玉子飯用コショー」3振りする。           ④右下に「バラン」、「紅生姜5g」を盛り付け、フタをしラベルシール
+④右下に「バラン」、「紅生姜5g」を盛り付け、フタをして提供する。            特シールを貼り、提供する。">
+          <div class="page-header">
+            <span class="page-badge">6 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-6.png', 'chouri - ページ 6')">
+            <img src="images/chouri-6.png" alt="ページ6" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="chouri" data-page="7"
+             data-searchtext="あさりたっぷりみそ汁         アサリジル                                 あったか白玉ぜんざい         【略語】ゼンザイ
+
+
+                         あさり                  6ケ         つぶあん       １００g
+                         あさりの味噌汁の素            1ケ         水          ３６cc
+                         水                    ２００ｃｃ      冷凍白玉       ３ケ
+
+
+
+                                                         ■調理・盛り付け手順
+
+■調理手順
+①フッ素片手鍋に冷凍のままの「あさり」36ケ「あさりの味噌汁の                          ①ぜんざい容器（身）に｢つぶあん｣100g、｢水｣36ccを入れ、トン
+ 素」6ケ正確に軽量した「水」1200ccを入れる。                                グ等で軽く混ぜる。
+②ガス台の「中火」で沸騰するまで約7分10秒加熱、または電磁                           ②冷凍のままの｢白玉｣3ヶを入れ、ホームパック(中)のフタを乗せ、電子
+ 調理器「強」設定で沸騰するまで約6分40秒加熱する。                               レンジ1800Wで約30秒レンジアップする。
+                                                         ③トング等で全体をよく混ぜ、フタをし、｢注意シール｣1枚、ラベル
+■盛付手順                                                     シールを貼り提供する。
+③「とん汁用カップ（身）」に「あさり」6ケ「あさり汁」（1食約200ｇ）
+ を盛付ける。
+④ フタをし、「殻注意シール」「ラベルシール」を貼付し提供する。
+
+ ※複数個まとめて提供する際はカップホルダーを使用する。
+
+
+
+
+【商品名】トリプルチキンボックス   【略語】トリプルボックス   から揚スパイス2 レモン果汁1        【商品名】ポテトトリプルボックス   【略語】ポテトトリプルボックス   から揚スパイス2 レモン果汁1
+
+
+
+
+                             ×３                     ×１                                   ×３                     ×１
+
+
+                                  ２ヶ                ２ヶ                                        ２ヶ                ２ヶ
+
+
+
+
+■調理手順                                                    ■調理手順
+①解凍したほっとチキン2ヶを約3分30秒油調する。                                ①解凍したほっとチキン2ヶを約3分30秒油調する。
+②から揚4ヶ、手羽中ハーフ10ヶを約4分油調する。                                ②から揚4ヶ、手羽中ハーフ10ヶを約4分油調する。
+                                                         ③シューストリングポテト200ｇを底平煮ザル入れ、約3分油調する。
+■盛付手順
+③バラエティBOX2022に油調したホットチキン2ケ、から揚4ヶ、手羽中                     ■盛付手順
+ハーフ10ヶを入れる。                                              ③バラエティBOX2022に油調したホットチキン2ケ、から揚4ヶ、手羽中
+⑤フタをして、ラベルシールで口を閉じる。                                     ハーフ10ヶを入れる。
+⑥「から揚スパイス小袋」3ヶ、「レモン果汁小袋」1ヶ、                              ④透明三方袋に油調した「シューストリングポテト」を入れる。
+ を貼付し提供する。                                               ⑤フタをして、ラベルシールで口を閉じる。
+                                                         ⑥「から揚スパイス小袋」3ヶ、「レモン果汁小袋」1ヶ、
+※おてふき２ヶを添付する。                                             三方袋にしお小袋を貼付し提供する。
+※ワゴムの使用禁止（容器が変形する恐れがある為）                                 ※おてふき２ヶを添付する。
+                                                         ※ワゴムの使用禁止（容器が変形する恐れがある為）
+
+
+【商品名】もちっとワンハンドチヂミ 【略語】チヂミ
+
+
+
+                            チヂミロール         1ケ
+
+
+
+
+■調理・盛り付け手順
+①解凍した「チヂミロール」を約1分30秒油調する
+②｢透明三方袋｣に調理した｢チヂミロール｣1ヶを入れ、
+ ラベルシールを貼り、袋を閉じる。">
+          <div class="page-header">
+            <span class="page-badge">7 / 7</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/chouri-7.png', 'chouri - ページ 7')">
+            <img src="images/chouri-7.png" alt="ページ7" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+    </div>
+  </section>
+
+
+  <section id="section-hansoku" class="section" style="display:none">
+    <div class="section-header">
+      <h2>📣 販促計画書（関西・淡路含む）</h2>
+      <p class="section-desc">販促カレンダー・商品案内・マニュアル変更（関西エリア）</p>
+    </div>
+    <div class="month-tabs">
+      <button class="month-tab active" onclick="switchMonth('cur')" id="month-tab-cur">📅 当月（2026年5月）</button>
+      
+    </div>
+    <div id="hansoku-cur-content" class="swipe-container">
+      
+        <div class="page-block" data-section="hansoku_cur" data-page="1"
+             data-searchtext="発行日
+
+
+  ※取扱注意                   ほっともっと
+
+             2026年5月度販促計画書(関西(淡路含む)エリア)
+
+
+  1. 販促スケジュール
+  (1) 販促カレンダー                                                1
+                                                                 枚
+
+  (2) キャンペーン案内他                                                  枚
+
+   ① MyHottoMotto特典に関するご案内                                   1
+                                                                 枚
+
+   ② アプリクーポンに関するご案内                                          5
+                                                                 枚
+
+   ③ アプリ活性化施策に関するご案内                                         1
+                                                                 枚
+
+   ④ ネット注文限定スープセット                                           1
+                                                                 枚
+
+   ⑤ 5月プロモーションについて                                           1
+                                                                 枚
+
+
+  2. 商品開発部
+  (1) 商品案内
+   ① 麻辣湯弁当/チーズ麻辣湯弁当                                          5 枚
+
+   ② ガパオライス/ガパオまぜ麺                                           5 枚
+
+   ③ 今治焼豚玉子飯/W今治焼豚玉子飯(肉2倍)                                   5 枚
+
+   ④ ミニ冷やしわかめうどん(沖縄以外)                                       1 枚
+
+   ⑤ れんこんのきんぴら(九州・山口・山陰)                                     0 枚
+
+   ⑥   5月度新商品の高火力IH、電磁調理器(ホシザキ製)、湿温蔵庫導入、タイプR･コンパクト店舗マニュアル    4 枚
+
+   ⑦ 目標販売食数について                                              3 枚
+
+  (2) マニュアル変更(RCのみ)                                          1 枚
+
+  (3) 別売り小袋一覧                                                1 枚
+
+
+  3.購買部
+  (1) 新規商材案内                                                 1
+                                                                 枚
+
+  (2) 商材変更案内                                                 1
+                                                                 枚
+
+  (3) 終売案内                                                   1
+                                                                 枚
+
+  (4) 夏用ユニフォーム導入について                                         1
+                                                                 枚
+
+
+  4. マーケティング本部
+  (1) 販促ツール詳細                                                1枚
+  (2) ツール設置                                                  1枚
+  (3) その他案内
+   ① 雑誌クーポン掲載について                                            1枚
+   ② SDGｓイラストポスターについて                                        1枚
+   ③ GWの販促ツール端末発注について                                        1枚
+
+
+                                                 合計         44 枚
+株式会社プレナス">
+          <div class="page-header">
+            <span class="page-badge">1 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_01.png', 'hansoku_cur - ページ 1')">
+            <img src="images/hansoku_cur_01.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="2"
+             data-searchtext="1．(1)販促カレンダー(全国）※関東、九州、山口、山陰、沖縄除く                                                                          全
+■2026年5月
+                                          販売カレンダー                   TVCM   アプリプッシュ通知             メルマガ
+
+                                                              【                5/1 AM
+  1 金                                                       文ア                【アプリ】
+                                                            1 プ             毎日10,000円分の
+                                                                4
+  2 土
+                                                            0 リ            電子マネーが当たるCP
+                                                                月
+                                                            0 】
+                                                                2
+                                                            円店
+                                                                5               5/2 AM
+  3 日                                                       引頭
+                                                                日           【店頭・ネット】
+                                                            き注～
+                                                            G 文 5          GW100円引きクーポン
+  4 月
+                                                            W ・月
+                                                            クネ 6              5/3 AM
+  5 火                                                       ーッ
+                                                                日          【キャッシュレス】
+                                                            ポト
+                                                                              d払いCP
+                                                            ン注
+  6 水
+
+                                                                                5/6 AM
+  7 木                                                                       【店頭・ネット】
+                                                                           GW100円引きクーポン
+
+  8 金                                                                                             5/8 AM
+         ■5/8～ 期間限定新発売                                  5                        5/8 PM          【新発売】
+                                                      オ月                       【新発売】         ガパオライス&amp;麻辣湯
+  9 土
+         気軽に本格タイ料理                                    リ 8                  ガパオライス&amp;麻辣湯        CANDY TUNEコラボCP
+                                                      ジ日                   CANDY TUNEコラボCP
+         ガパオライス      690円                           ※ ～
+  10 日                                                ナ                                         【アプリ】
+                                                    な               麻
+                                                      ル                                       毎日10,000円分の
+         もちもち麺と相性抜群!                                く               辣 5
+                                                      ク C                      5/9 AM        電子マネーが当たるCP
+  11 月   ガパオまぜ麺      690円                           な               湯月
+                                                      リ A                     【新発売】
+                                                    り               / 8
+                                                      ア N                  ミニ冷やしわかめうどん          【アプリ】
+         痺れる辛さ                                      次               ガ日
+  12 火                                                フ D                                       弁当総選挙
+                                                    第               パ～
+         麻辣湯弁当      730円                              ァ Y                    PM【新発売】
+                                                    終               オ 5
+                                                      イ                    ガパオライス&amp;麻辣湯        【キャッシュレス】
+  13 水                                              了               ラ月
+         まろやかチーズ×痺れる辛さ                                ル T                                       d払いCP
+                                                      C U           イ 1
+         チーズ麻辣湯弁当           830円                                    ス 7
+  14 木                                                P N                     5/10 AM
+                                                        E           C 日
+         讃岐うどん麺使用                                                   M         【アプリ】
+         ミニ冷やしわかめうどん               160円                                       弁当総選挙
+  15 金
+                                                                             (投票最終日)
+5
+月 16 土
+
+
+  17 日
+
+                                                                               5/15 AM
+  18 月                                                                        【アプリ】
+                                                                              弁当総選挙
+                                                                              (結果発表)
+  19 火
+
+                                                                               5/16 AM
+  20 水                                                                       【アプリ】             5/20 AM
+         ■5/20～ 期間限定新発売                                                     毎日10,000円分の        【新発売】
+                                                                           電子マネーが当たるCP        今治焼豚玉子飯
+  21 木
+         ～今治焼豚玉子飯世界普及委員会監修～
+                                                                                                【アプリ】
+  22 金   今治焼豚玉子飯       690円
+                                                                                 5/17 AM       10,000円分の
+                                                                                 会員訴求        電子マネーが当たるCP
+         ～今治焼豚玉子飯世界普及委員会監修～
+  23 土
+         W今治焼豚玉子飯(肉2倍)             950円                                                      【キャッシュレス】
+                                                                                                d払いCP
+  24 日                                                                        5/20 PM
+                                                                              【新発売】
+                                                                             今治焼豚玉子飯
+  25 月
+                                                                                                5/25 AM
+                                                                                              ほっともっとWEEK
+  26 火                                                                        5/23 AM
+                                                                              【新発売】
+                                                                                               【新発売】
+                                                                             今治焼豚玉子飯
+  27 水                                                                                        今治焼豚玉子飯
+
+                                                                                                【アプリ】
+  28 木                                                                        5/25 PM          10,000円分の
+                                                                            ほっともっとWEEK       電子マネーが当たるCP
+  29 金
+                                                                                             【キャッシュレス】
+                                                                               5/31 AM          d払いCP
+  30 土                                                                        【アプリ】
+                                                                             10,000円分の
+                                                                           電子マネーが当たるCP
+  31 日
+
+
+  【TVCM】
+    ・ 5月8日～5月17日：麻辣湯/ガパオライス
+  【その他CP情報】
+    ・ 4月25日～5月6日：【店頭・ネット注文】GW100円引きクーポン配信
+    ・ 5月1日～5月31日：タイムサービス(14時～18時はおかず全品30円引き)
+    ・ 5月1日～5月31日：UberEatsリスティング広告
+    ・ 5月8日～：CANDY TUNEオリジナルクリアファイルキャンペーン ※景品がなくなり次第終了
+    ・ 5月25日～5月31日：ほっともっとWEEK(チャージポイント2倍CPを含む)
+    ・ 4月1日～9月30日：d払いキャンペーン(毎日1名様に10,000ptが当たる)
+  【My Hotto Mottoお知らせメール】
+    5月1日 PM   ランク確定通知メール(全会員様向け)
+    ※メルマガ/アプリプッシュ配信の内容・配信日は状況により変更する場合がございます。
+    ※メルマガ/アプリプッシュ配信は、状況により追加配信を行う場合がございます。">
+          <div class="page-header">
+            <span class="page-badge">2 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_02.png', 'hansoku_cur - ページ 2')">
+            <img src="images/hansoku_cur_02.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="3"
+             data-searchtext="1.(2).①MyHottoMotto特典に関するご案内                                       全
+毎月15～20日は65歳以上の会員様最大12％還元!「敬老フェア」の実施について
+
+65歳以上の利用促進を目的として、『敬老フェア』を実施します。
+期間内にご利用された会員様(65歳以上)は、購入時の付与ポイント数が通常の3倍となります。
+※65歳未満の会員様は通常のポイント付与数となります。
+※店舗で年齢確認など、オペレーションの追加はございません。
+
+
+期間：4月以降の毎月15～20日       ※キャンペーンは早期終了する場合がございます。
+
+日程：5月15日(金)～20日(水)
+   ※店舗での設定等はございません。
+対象：65歳以上のMyHottoMotto会員様(会員登録時に入力いただいた生年月日にて判定)
+内容：店頭・ネット注文を含む購入時付与ポイント数が通常の3倍となります。
+   ゴールドランク 通常4% →12%
+   シルバーランク 通常3% →9%
+   ゴールドランク 通常2% →6%
+   ゴールドランク 通常1% →3%
+
+「My HottoMotto会員特典」について
+毎月25日～月末の期間を『ほっともっとWEEK』と題し、My HottoMotto会員サービスの強化を行っていきま
+す。合わせて、SNS企画も実施する等、『ほっともっとWEEK』を盛り上げて参ります。
+
+■「チャージポイント2倍」
+内容：            CP期間に会員様がチャージすると、付与ポイントが2倍になります。
+               ほっともっと電子マネーの利用を促進します。
+日程：            5月25日(月)～31日(日)
+               ※店舗での設定等はございません。
+
+■My HottoMotto会員特典一覧
+          特典              特典内容                   内容      付与タイミング
+                                   新規入会された方へポイントをプレゼント
+         入会特典              150pt                         入会後5日以内
+                                   ※スマホ会員・カード会員全てが対象
+      初回チャージ特典             100pt   初回チャージ時にポイントプレゼント       即時">
+          <div class="page-header">
+            <span class="page-badge">3 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_03.png', 'hansoku_cur - ページ 3')">
+            <img src="images/hansoku_cur_03.png" alt="ページ3" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="4"
+             data-searchtext="1.(2).② アプリクーポンに関するご案内                                                全
+ほっともっと公式アプリ限定で利用できる「アプリ限定クーポン」を配信いたします。
+■GWクーポンの配信について(期間中、1回限り利用可能)
+  GW期間に合わせて、MyHottoMotto会員様限定でアプリからネット注文と店頭注文それぞれで使用可能な、
+  高単価商品の値引きクーポンを配信することで購買促進を狙います。
+
+    クーポン期間         期間中の利用回数    利用区分          クーポン内容          値引額    協賛金
+                              店頭支払い限定     【GW】100円引きクーポン     100円   20円
+  4/25(土)～5/6(水)     1回限り
+                                         【GW】100円引きクーポン
+                              ネット注文限定      ※会員ログイン必須
+                                                             100円   20円
+
+■クーポン内容/期間(期間中、1回限り利用可能)
+    クーポン期間         期間中の利用回数    利用区分          クーポン内容          値引額    協賛金
+                                        ～今治焼豚玉子飯世界普及委員会監修～
+                                                             30円    3円
+                                            今治焼豚玉子飯
+  5/20(水)～6/2(火)     1回限り     店頭支払い限定
+                                        ～今治焼豚玉子飯世界普及委員会監修～
+                                                             30円    3円
+                                          W今治焼豚玉子飯(肉2倍)
+
+■クーポン内容/期間(期間中、何度でも使える)
+    クーポン期間         期間中の利用回数    利用区分          クーポン内容          値引額    協賛金
+                                          ～もち麦ごはんのミニ弁当～
+                                                             10円    1円
+                                        もちミニ彩・豆腐ハンバーグ弁当
+                                          ～もち麦ごはんのミニ弁当～
+                                                             10円    1円
+                                           もちミニしゃけ弁当
+                                            ごちそう勢ぞろい！
+                                            特撰幕の内弁当          10円    1円
+                                           おかずがリニューアル！
+  5/7(木)～5/19(火)                            新・幕の内弁当          10円    1円
+                                         (豆腐ハンバーグと野菜の照りだれ)
+
+                                            8コ入りチキンBOX       20円    2円
+
+                                          ミニ冷やしわかめうどん        10円    1円
+
+                                          たっぷりグリーンサラダ        10円    1円
+                                            気軽に本格タイ料理
+                                             ガパオライス          30円    3円
+
+                                        ガパオライス+たまごスープセット     30円    3円
+                                           もちもち麺と相性抜群!
+  5/8(金)～5/19(火)                             ガパオまぜ麺          30円    3円
+                   何度でも利用可能   ネット注文限定         痺れる辛さ
+                                              麻辣湯弁当          30円    3円
+                                          まろやかチーズ×痺れる辛さ
+                                            チーズ麻辣湯弁当         30円    3円
+                                        ～今治焼豚玉子飯世界普及委員会監修～
+                                            今治焼豚玉子飯          30円    3円
+                                        ～今治焼豚玉子飯世界普及委員会監修～
+                                          W今治焼豚玉子飯(肉2倍)      30円    3円
+                                             おかず全部のせ！
+                                                             10円    1円
+                                          全部のせのりタル弁当
+                                              3種のフライ
+                                                             10円    1円
+                                            特のりタル弁当
+                                              国産生姜香る
+  5/20(水)～6/2(火)                                             10円    1円
+                                            しょうが焼き弁当
+                                             おだしがしみる
+                                                             10円    1円
+                                             ロースかつ丼
+                                           12コ入りチキンBOX       20円    2円
+
+                                             パリパリ春巻          10円    1円
+
+                                          7品目のミックスサラダ        10円    1円">
+          <div class="page-header">
+            <span class="page-badge">4 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_04.png', 'hansoku_cur - ページ 4')">
+            <img src="images/hansoku_cur_04.png" alt="ページ4" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="5"
+             data-searchtext="■1回限定100円引きクーポンについて(ネット注文限定クーポン)
+3月より、「ネット注文限定クーポン」において、利用回数に制限を設けることができるようになりました。
+▼1回限定100円引きクーポンの利用条件(ネット注文限定クーポン)
+
+  ・ほっともっと公式アプリのダウンロードが必要です。
+  ・ネット注文時のMy HottoMotto会員ログインが必要です。
+
+
+                  ★新機能【ネット注文】1回限定100円引きクーポンの利用方法
+
+
+                   クーポンの利用にはネット注文時の会員ログインが必要です。
+
+  【公式アプリ】
+                                                   クーポン適用画面            ネット注文フロー
+ネット注文クーポン一覧
+
+
+
+
+ 利用回数制限
+  クーポン①
+                  会員ログイン済みの場合
+
+ 利用回数制限
+  クーポン②
+
+
+                                                  「クーポンが適用されました」旨の、
+                                                                      クーポンを適用してネット注文へ
+                                                    案内が表示されます。
+
+
+
+
+会員未ログインの場合
+
+
+              会員未ログインの案内       会員ログイン画面
+
+
+
+
+            クーポン利用時に『未ログイン』の場合のみ、ログイン画面に遷移します。
+
+
+
+
+              ネットでの注文完了後に、クーポンが『使用済み』となり、利用できなくなります。
+
+  すでにご利用済みのクーポンが選択された場合
+
+
+
+
+     利用回数制限
+      クーポン①
+      (利用済みの場合)
+
+
+      利用回数制限
+       クーポン②
+
+                           すでにご利用済みのクーポンが選択された
+  ※アプリのネット注文クーポン一覧画面
+                            場合は、「クーポンが利用できない」旨の
+  にはクーポン利用後も表示が残ります。
+                                案内が表示されます。
+
+※対象の注文をキャンセルした場合、再度クーポンをご利用いただけるようになります。">
+          <div class="page-header">
+            <span class="page-badge">5 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_05.png', 'hansoku_cur - ページ 5')">
+            <img src="images/hansoku_cur_05.png" alt="ページ5" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="6"
+             data-searchtext="※対象の注文をキャンセルした場合、再度クーポンをご利用いただけるようになります。
+
+                  『ネット注文限定(何度でも利用可能)』クーポンのご利用方法
+
+                     ネット注文時の会員ログインは必要ありません。
+
+
+ アプリTOPページより                               アプリのクーポンページより、
+ クーポンページへ移動                                利用されるクーポンを選択
+
+
+
+
+                                     ①     ②
+                                     ③     ④
+ ネット注文のメニュー欄で
+ 対象メニューを選択                                 注文完了
+
+
+ ※まず、ネット注文の
+ 店舗選択ページに遷移します
+ ※対象商品に「クーポン対象」
+ のマークがつきます
+
+
+
+                     【ネット注文限定クーポンに関する注意点】
+
+ ✓クーポンの利用期限は商品注文日が対象となります。
+ 具体例 ）有効期限「5月19日」までのクーポンの場合
+ 5月19日中にクーポンページからご予約いただいた場合には、指定した受取日時（最大で5月25日まで）のご注文がお値引きの
+ 対象となります。
+
+ ✓クーポンは1回のご来店につき、ご利用できるクーポンは1枚限りとなります。
+ ※同一商品を複数点ご注文いただいても、1点分のみの値引きとなります。
+ （例：ガパオライス2点注文 1点分のみ値引き（30円））
+ ※クーポンの併用利用はできません。
+ （例：ガパオライスとガパオまぜ麺の併用不可）
+
+ ✓“おかずのみ&quot;で購入できる商品のクーポンは、“おかずのみ”も対象となります。
+
+ ✓タイムサービスとクーポンの併用は可能です。">
+          <div class="page-header">
+            <span class="page-badge">6 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_06.png', 'hansoku_cur - ページ 6')">
+            <img src="images/hansoku_cur_06.png" alt="ページ6" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="7"
+             data-searchtext="『店頭支払い限定』クーポンのご利用方法
+
+アプリTOP画面       店頭限定クーポン          店頭限定クーポン      店頭限定クーポン    店頭限定クーポン
+                一覧画面              使うボタン          利用確認画面     タイマー画面
+
+
+
+
+  ※画像はイメージです
+
+
+
+
+   店頭支払い限定
+
+
+
+
+                                      店頭限定クーポンの「使う」ボタン    クーポンのタイマー機能が作動し
+ ※画像はイメージです    店頭限定クーポンの一覧ページ
+                                      に関する最終確認ページです。      ていることを確認の上、店舗にて
+               です。内容をご確認の上、クーポ
+                                      「使う」ボタンを押すと、タイマーが   レジ入力によるお値引きの対応
+               ンの利用へ進んでいただけます。
+                                      作動し、クーポンが消費されます。       を行ってください。
+
+
+
+
+                 【店頭支払い限定クーポンに関する注意点】
+・ネット注文(事前決済)でのご利用はできません。
+※「店頭でお支払い」を選択の場合は、店頭決済時にご利用いただけます。
+
+・他のクーポンとの併用はできません。
+
+・クーポンの利用回数は、「1回のみ」となります。
+
+・会計時に店頭での提示が必要です。
+
+・「使う」のタップ後に表示される15分のカウントダウンタイマーが動いてないものは、無効となります。
+（スクリーンショットなどで複製されたクーポンの可能性があるため。）
+＜タイマーが止まっているクーポンをご提示された場合＞
+下記をお客様へお伝えしクーポンのご利用をお断りください。                              タイマーが動いて
+「タイマーが止まっているクーポンは、無効となります。                                いる事を必ず確認
+申し訳ございませんが、こちらのクーポンはご利用いただけません。」                           してください。
+
+
+
+
+・券売機で会計後、商品受け渡し時にアプリクーポンを提示された場合は、以下の手順で対応をお願いいたします。
+①お客様から券売機で発行されたレシートをいただく。
+②レジにて商品を打ち直し「アプリクーポン△30円」もしくは、「アプリクーポン△100円」を打ち込み差額をお客様へお返し
+する。
+③もらったレシートをPOSにて売上取消を行う。">
+          <div class="page-header">
+            <span class="page-badge">7 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_07.png', 'hansoku_cur - ページ 7')">
+            <img src="images/hansoku_cur_07.png" alt="ページ7" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="8"
+             data-searchtext="■クーポンの処理方法（レジ入力）
+
+お会計時は下記のPOSキーを使用してください。
+※キャッシュレス決済時は、レジ打ちは不要です。
+10円引きの場合：「アプリクーポン△10円」
+20円引きの場合：「アプリクーポン△20円」
+30円引きの場合：「アプリクーポン△30円」
+100円引きの場合：「アプリクーポン△100円」
+
+
+〇店舗控え（印字サンプル）              〇領収書（印字サンプル）
+
+
+
+
+                             プレナス太郎
+    プレナス太郎">
+          <div class="page-header">
+            <span class="page-badge">8 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_08.png', 'hansoku_cur - ページ 8')">
+            <img src="images/hansoku_cur_08.png" alt="ページ8" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="9"
+             data-searchtext="1.(2).③アプリ活性化施策に関するご案内                                  全
+          毎日アプリを開くとチャンス！ その場で分かる！
+   毎日「1名様に10,000円分 」のほっともっと電子マネーが当たるキャンペーン！
+公式アプリの活性化を目的として、アプリ限定キャンペーンを実施いたします。
+①その場で分かる！毎日1名様に10,000円分のほっともっと電子マネーが当たる！
+②はずれても、Wチャンスとして5,000円分のほっともっと電子マネーが100名様に当たる！
+ (毎日応募すると当選確率UP)
+※1日1回抽選に参加できます。
+
+
+■実施期間        2026年5月1日(金) ～ 5月31日(日)
+■概要          ①その場で分かる！毎日1名様に10,000円分のほっともっと電子マネーが当たる！
+
+             アプリで1日1回抽選に参加し、その場で当選・落選が分かります。
+             当選者は「当選者入力フォーム」に入力いただくと、翌月上旬に電子マネーを
+             付与いたします。落選された方は②のWチャンスへご応募いただけます。
+
+             ②Wチャンスとして5,000円分のほっともっと電子マネーが100名様に当たる！
+
+             ①に落選すると、Wチャンスに応募いただけます。
+             ※応募すればするほど、当選確率がUPいたします。
+             例)3回応募→当選確率3倍    4回応募→当選確率4倍
+
+■対象          ほっともっと公式アプリダウンロード済ユーザー
+             ※キャンペーンの応募にはMyHottoMotto会員登録が必要です。
+■賞品          毎日1名様：10,000円分のほっともっと電子マネー
+             Wチャンス応募：5,000円分のほっともっと電子マネー×100名様
+■賞品の送付       2026年6月上旬に該当の会員様へほっともっと電子マネーを付与いたします。
+             ※付与完了のご案内はいたしません。
+
+■抽選イメージ
+
+
+
+
+                                   →当選時
+
+
+
+
+※抽選は1日1回(0:00～24:00)応募可能です。
+
+
+                                   →落選時">
+          <div class="page-header">
+            <span class="page-badge">9 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_09.png', 'hansoku_cur - ページ 9')">
+            <img src="images/hansoku_cur_09.png" alt="ページ9" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="10"
+             data-searchtext="1.(2).④ ネット注文限定スープセット                            全
+            「ガパオライス」と相性の良いスープのセット販売を、
+           ネット注文限定(ネット注文ページでの表示のみ)で実施。
+
+           利用しやすいセットを提案し、客単価アップを狙います。
+              (※値引きではなく、定価のセット販売です。)
+
+ ■販売期間及び商品詳細(セット内容)
+
+ 期間：5月8日(金)～6月1日(月)
+
+
+
+
+                              +
+
+
+
+
+    販売価格焼肉ビビンバ
+         850円    630円 ＋わかめスープ
+                  [内訳]ガパオライス    140円 ＝販売価格770円
+                             690円＋たまごスープ 160円">
+          <div class="page-header">
+            <span class="page-badge">10 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_10.png', 'hansoku_cur - ページ 10')">
+            <img src="images/hansoku_cur_10.png" alt="ページ10" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="11"
+             data-searchtext="1.(2).⑤5月プロモーションについて                                          全
+
+     人気グループ「CANDY TUNE」を継続起用し、新商品「麻辣湯/ガパオライス」の
+   プロモーションを展開することで、話題化と新規顧客の獲得を行い、売上増を狙います。
+
+
+ ■広告展開
+ TVCM   ：5月8(金)～5月17日(日)※全国
+ 店頭ツール  ：メニューパンフレット5月号、タペストリー
+ 店頭限定キャンペーン：5月8日(金)～景品なくなり次第終了
+ ※対象商品を購入しアプリ専用画面(クーポン)を見せるとクリアファイルプレゼント。(各店50枚)
+ ※レシートでも告知を行います。
+ ■キャンペーン詳細
+  対象商品を購入し、アプリ専用画面(クーポン画面)を提示すると、対象商品1つ
+  購入につき1枚オリジナルクリアファイルをプレゼントするキャンペーン。
+
+ ・期間：5月8日(金)～景品がなくなり次第終了
+ ・対象商品：麻辣湯弁当(おかずのみ含む) / チーズ麻辣湯弁当(おかずのみ含む)/
+        ガパオライス / ガパオまぜ麺
+
+ ・キャンペーン参加方法(対象者)
+  店頭・ネット注文で対象商品を購入の上、レジにて専用画面(クーポン画面)を
+  提示したお客様が対象です。
+  ご来店のお客様が対象です。(アプリ画面の確認が必要なため)
+  宅配サービス(自社及び、デリバリー委託含む)をご利用のお客様は対象外です。
+
+ ・景品について(クリアファイル)
+  A4サイズのクリアファイルです。
+  各店50枚納品
+  店舗納品：4月25日(土)～4月28日(火)
+  ※景品終了ポスターも同梱しております。廃棄しないようにご注意ください。
+
+
+
+ ・配布時の注意点
+  対象商品を複数購入の場合、購入分の景品をお渡ししてください。
+  例)ガパオライス3ケを購入の場合⇒景品3枚をお渡し。
+
+ ・キャンペーン告知について
+  おすすめPOPにて告知をお願いいたします。
+  景品の配布が終了しましたら、速やかに下記対応をお願いいたします。
+
+  □おすすめPOPの裏面(右側：冷やしうどん)へ           □景品終了告知ポスターの掲出
+
+
+
+                                              イメージ
+
+
+
+
+ ■出演者プロフィール
+                        CANDY TUNE(キャンディーチューン)
+                        7人組アイドルグループ「CANDY TUNE（キャンディーチューン）」
+                        メンバーは、桐原美月、福山梨乃、小川奈々子、南なつ、立花琴未、
+                        宮野静、村川緋杏の7人。
+                        アソビシステムが手掛ける、アイドル文化を世界に向けて発信する新プ
+                        ロジェクト「KAWAIILAB.」より2023年3月14日にデビュー。
+
+
+                        2025年「第67回輝く!日本レコード大賞」にて優秀作品賞受賞
+                        2025年「NHK紅白歌合戦」初出場">
+          <div class="page-header">
+            <span class="page-badge">11 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_11.png', 'hansoku_cur - ページ 11')">
+            <img src="images/hansoku_cur_11.png" alt="ページ11" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="12"
+             data-searchtext="2.(1)-①   商品案内                                                                                    全
+          商品名              発売日             売価            オーダー略語           ショーケース陳列期限 大量注文の受注
+
+     麻辣湯弁当                                730円         マーラー(ノミ)
+                        5月8日(金)                                           1時間前撤去             不可
+    チーズ麻辣湯弁当                              830円        チーズマーラー(ノミ)
+【麻辣湯弁当】                                          使用商材
+                                                     豚バラスライス    1/2 袋 タンミョン（戻し後）  70   g
+                                                      キャベツ      80 ｇ 麻辣湯のたれ（希釈後） 60cc×2杯
+                                                       玉葱       30   ｇ      MO容器(対応身)         1   枚
+                                                       人参       10   ｇ    MO容器(未対応黒フタ)        1   枚
+                                                       もやし      15   ｇ     バイオプラレンゲ           1   本
+                                                 きくらげ（戻し後）     約8g(約6ヶ)       完封竹箸            1   ヶ
+
+
+
+                                                【チーズ麻辣湯弁当の場合】              提供時画像
+                                                  シュレッドチーズ   25      ｇ       【麻辣湯弁当】
+【チーズ麻辣湯弁当】                                            新味シール     1    枚
+                                                                                     ラベル
+                 ※｢シュレッドチーズ｣は
+                  なるべく中心に盛り付ける。                      ライス（小）     180g
+                                                     ライス（中）     230g
+                                                     ライス（大）     330g
+                                                                             【チーズ麻辣湯弁当】
+
+                                                                                     ラベル
+
+
+                                ※お客様が喫食する際のイメージです。
+                                                                                        新味
+
+
+
+
+  たけのこごはん変更、対象商品です。
+  レンジアップ後、豚バラスライスに火が通っているか、必ず確認して下さい。
+  ｢チーズ麻辣湯弁当｣の｢シュレッドチーズ｣はなるべく中心に盛り付けて下さい。">
+          <div class="page-header">
+            <span class="page-badge">12 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_12.png', 'hansoku_cur - ページ 12')">
+            <img src="images/hansoku_cur_12.png" alt="ページ12" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="13"
+             data-searchtext="1．新規商材
+ 麻辣湯のたれ1L                                                 タンミョン
+                                                                                     ※タンミョンとは平たく太いはるさめの事です。
+                            希釈割合                                                     ※1袋＝200g(約10食分)
+                      麻辣湯のたれ：水=1:2                                                   ※表面に気泡が入っている場合が
+                     希釈後、最大冷蔵24時間                                                     ありますが使用出来ます。
+                           常温最大12時間                                                  ※袋の中の透明な破片は｢タンミョン｣です。
+                    ※丼たれと保管期限は同様です。                                     ※全て使用出来ます。
+                                                        【保管期限：袋に記載の賞味期限まで】
+【保管期限：開封後冷蔵14日間】                                        【保管期限：加熱戻し後冷蔵36時間】
+ シュレッドチーズ300g              ※チーズ保管について                   きくらげ130g                 バイオプラレンゲ140      MO容器(未対応黒フタ)
+                           ・開封後のチーズはタッパー等に入れ、
+          目安:15㏄スプーン×4杯
+                            フタをし冷蔵保管してください。
+                           ・スプーンはピーク中のみタッパーに入れて                ※開封後のきくらげはワゴム等で
+                            おく事が可能です。                           封をし保管して下さい。
+                           ・ スプーンと一緒に保管する際は、
+                            水分を十分に拭き取ってから
+                            保管して下さい。              【保管期限：袋に記載の賞味期限まで】
+【保管期限：開封後冷蔵7日間】             カビが発生する原因となります。       【保管期限：加熱戻し後冷蔵36時間】                              ※フタはレンジ非対応です。
+
+ 2．事前準備
+ ① ｢豚バラスライス｣｢キャベツ｣｢玉葱｣｢人参｣を必要食数分準備する。
+ ② ｢麻辣湯のたれ｣を希釈する。
+ ③ ｢きくらげ｣を準備する。
+ ◆ボイル戻し…乾燥のままの「きくらげ」を沸騰したたっぷりのお湯で約5分ボイルする。
+          ザルにあげ、流水で約30秒粗熱をとり、水気を良く切り冷蔵保管する。
+         ※きくらげは大小の大きさがありますので、組み合わせて使用して下さい。
+ ◆レンジ戻し…ホームパック(中)に乾燥のままの「きくらげ」10ｇ(最大食数10食迄)、水200㏄を入れ、フタをずらしてのせ、
+          約1分30秒レンジアップする。その後、ザルにあげ、流水で約30秒粗熱をとり、水気を良く切り冷蔵保管する。
+  【調理後重量目安】                              【電子レンジ       1800W】
+             1食     5食      10食          使用商材 1食使用量            10食迄
+
+   きくらげ   1g(約6ヶ)    5g     10g                                約1分30秒
+                                         きくらげ      1g
+                                                          ※フタをずらす
+  調理後重量     約8g     約40g   約80g
+                                               使用備品       ホームパック(中)">
+          <div class="page-header">
+            <span class="page-badge">13 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_13.png', 'hansoku_cur - ページ 13')">
+            <img src="images/hansoku_cur_13.png" alt="ページ13" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="14"
+             data-searchtext="«タンミョンを準備する»
+① 乾燥のままの｢タンミョン｣を沸騰したたっぷりのお湯でガス台の場合は｢中火｣、電磁調理器の場合は｢中設定｣で約18分ボイルする。
+※ 水量は｢タンミョン｣のボイル量に対して11倍を目安に沸騰させて下さい。
+※ ボイルの火加減は｢中火｣又は｢中設定｣を厳守して下さい。強火でボイルしてしまうと鍋底へくっつく原因となります。
+※ ｢タンミョン｣をお湯に投入する際は、まとめて入れるのではなく、何回かに分け、鍋全体に広げながら投入して下さい。
+※ 麺線が太く、くっつきやすいので時々かき混ぜて下さい。
+② ボイル後、ザルにあげ流水で約30秒粗熱をとり、水気を切る。
+➂ 水切り後、油を入れ｢タンミョン｣全体になじませ、冷蔵保管する
+※ タンミョン同士がくっついてしまい太く感じるものもありますが、最終調理時に加熱をする事で柔らかくなる為、使用可能です。
+※ タンミョンはボイル直後は半透明ですが時間が経過すると白く色が変わりますが問題ございません。再度調理する事で半透明に戻ります。
+※ 油はくっつき防止です。ボイル後すぐに使用する場合は油をかける必要はありません。
+
+
+【調理後重量目安】     ※ボイル後、約3.5倍                                  【油量】     ボイル後、500g単位で油を4㏄増やして下さい。
+ 使用食材     100g        200g      300g(1.5袋) 600g(2袋)        タンミョン重量(ボイル後)   500g迄   1,000g迄 1,500g迄 2,000g迄
+  水量    約1,100g＝ml 約2,200g＝ml 約3,300g＝ml 約6,600g＝ml            油量           4㏄       8㏄     12㏄     16㏄
+調理後重量   約350g(5食分) 約700g(10食分) 約1,050(15食分) 約2,100(20食分)
+
+ 使用備品       フッ素片手鍋                 料理鍋33㎝以上
+
+
+
+
+               くっつきやすい為、時々かき混ぜて下さい。
+
+≪｢キャベツ｣80g、｢玉葱｣30g、｢人参｣10g、｢もやし｣15g、調理した｢きくらげ(戻し後)｣約8g(約6ヶ)
+ ｢タンミョン(戻し後)｣70gを事前に容器へセットする事が可能です。≫
+                                                           ※容器に商材を盛り込み、フタをして冷蔵保管可能です。
+                                                           ※｢タンミョン｣の入れ忘れを防ぐため、一番最後に盛り付けて下さい。
+                                                           【保管期限：冷蔵21時間(もやし有り) ※但し、各商材の保管期限に準ずる】
+                                                           【保管期限：冷蔵24時間(もやし無し) ※但し、各商材の保管期限に準ずる】">
+          <div class="page-header">
+            <span class="page-badge">14 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_14.png', 'hansoku_cur - ページ 14')">
+            <img src="images/hansoku_cur_14.png" alt="ページ14" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="15"
+             data-searchtext="3．調理
+
+≪電子レンジの場合≫
+① 事前準備をした｢麻辣湯セット｣に｢豚バラスライス｣1/2袋、希釈した｢麻辣湯のたれ｣120ccを入れる。
+※ 事前セットに｢もやし｣を入れてない場合は入れて下さい。
+※ ｢豚バラスライス｣と｢麻辣湯のたれ｣を入れる順番はどちらが先でも問題ございません。
+※ 希釈した｢麻辣湯のたれ｣は使用前によくかき混ぜて下さい。
+② 具材を全て入れた｢麻辣湯セット｣の上にジップロックのフタをずらして置き、、約1分40秒レンジアップする。
+※ レンジアップ後、豚バラスライスに火が通っているか必ず確認をして下さい。赤い場合は約10秒追加でレンジアップして下さい。
+※ 具材全体を混ぜ、トング等で整えてから提供して下さい。そのまま提供してしまうと豚肉が白く、見た目がよくありません。
+
+
+
+
+                                                         ※具材全体を混ぜ、トング等で整えて下さい。
+                                         ※2食調理の場合は中央で容器同士が
+                                          重なるように配置して下さい。">
+          <div class="page-header">
+            <span class="page-badge">15 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_15.png', 'hansoku_cur - ページ 15')">
+            <img src="images/hansoku_cur_15.png" alt="ページ15" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="16"
+             data-searchtext="≪電磁調理器の場合≫
+① フッ素片手鍋に全具材を入れ、希釈した｢麻辣湯のたれ｣120㏄を具材全体にかける。
+② ガラス蓋をし、電磁調理器「強」設定で約1分20分加熱する。
+③ ガラス蓋を取り、各具材がたれに浸るように整え、豚の赤みが無くなるまでさらに約1分20秒加熱する。
+
+
+
+
+                                   ※全体を混ぜながら
+                                    調理して下さい。
+【電磁調理器】
+          使用備品                     フッ素片手鍋
+   使用食材          1食使用量             調理時間目安
+
+  豚バラスライス          1/2袋
+
+   キャベツ            80g
+     玉葱            30g
+                              ガラス蓋をし、約1分20秒加熱する。
+     人参            10g
+                            ガラス蓋を取り、さらに約1分20秒加熱する。
+    もやし            15g
+ タンミョン(戻し後)        70g
+ きくらげ(戻し後)       約8g(約6ヶ)
+麻辣湯のたれ(希釈後)      60㏄×2杯
+      合計調理時間                        約2分40秒
+           火力                        強設定
+
+
+
+4．盛り付け
+
+【チーズ麻辣湯弁当】の場合
+① 「シュレッドチーズ」25gを全体にふりかける。
+※ 調理後、仕上げにふりかけて下さい。
+② フタに「新味シール」を貼り付ける。">
+          <div class="page-header">
+            <span class="page-badge">16 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_16.png', 'hansoku_cur - ページ 16')">
+            <img src="images/hansoku_cur_16.png" alt="ページ16" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="17"
+             data-searchtext="2.(1)-②   商品案内                                                                             全
+           商品名      発売日       売価             オーダー略語                ショーケース陳列期限      大量注文の受注
+          ガパオライス                            ガパオライス
+                   5月8日(金)   690円                                    1時間前撤去          不可
+          ガパオまぜ麺                             ガパオメン
+【ガパオライス】                            使用商材
+                                   【ガパオライス】                        【ガパオまぜ麺】
+                                           ライス          230    ｇ       ちゃんぽん麺          2   ヶ
+                                      木製スプーン             1     ヶ          完封竹箸         1   ヶ
+                                                                        新味シール          1   枚
+                                                                   【共通】
+                                      ライス（小）            180g           鶏モモミンチ肉        75   g
+                                      ライス（中）            230g           ガパオ炒めの素        18   cc
+                                      ライス（大）            330g              目玉焼き         1   ヶ
+                                                                        レモン 1/12       1   ヶ
+                                                                       フードケース緑         1   枚
+【ガパオまぜ麺】                                                           ミックスピーマンスライス       10   ｇ
+                                                                     千切サラダMIX(準備量)    16.5 ｇ
+                                                                          盛込み量        約20 ｇ
+                                                                      辛味ナンプラー小袋        1   ヶ
+                                                                      デリプレ容器(身)        1   枚
+                                           提供時画像                      デリプレ容器(フタ)       1   枚
+
+                                     ラベル                       ラベル
+
+                              小袋                   小袋
+
+                                                              新味シール
+
+
+
+                                                   ※ガパオまぜ麺の場合
+
+   盛り付け具材は共通です。
+   麺の大盛り・小盛り対応は不可です。
+   ｢辛味ナンプラー小袋｣の付け忘れにご注意下さい。
+   ガパオライスは木製スプーン、ガパオまぜ麺は完封竹箸をつける設計です。">
+          <div class="page-header">
+            <span class="page-badge">17 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_17.png', 'hansoku_cur - ページ 17')">
+            <img src="images/hansoku_cur_17.png" alt="ページ17" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="18"
+             data-searchtext="1．新規商材
+鶏モモミンチ肉1050g                        ちゃんぽん麺80入                     レモン             辛味ナンプラー小袋
+                                                             （山陰・山口・広島・九州・沖縄除く）
+
+
+
+                                            ※10ヶ/袋=5食分
+               1食(75g)計量目安                  ※２ヶで１食となります。
+               横口レードル すりきり1杯                ※１食：約200ｇ
+
+ガパオ炒めの素1㎏                                                                   デリプレ容器(身・フタ)
+                                「ガパオ炒めの素｣を容器から取り出し、付属の容器を洗浄し、
+                                アルコール消毒液にて消毒後、袋から容器へ移し変え冷蔵保管する。
+                                ※｢ガパオ炒めの素｣は香りが非常に強いたれです。
+                                 容器は使いまわさず､たれを使い切る度に処分して下さい。
+
+
+  【 保管期限：開封後冷蔵14日間 】
+
+2．事前準備
+① ｢レモン｣を洗浄後、1/12にカットする。           【 保管期限：カット後、冷蔵48時間 】
+② ｢目玉焼き｣を準備する。         【 保管期限：常温4時間 】   【焼成後、冷蔵36時間】
+③ ｢千切サラダMIX｣を準備する。        【 保管期限：開封後、冷蔵21時間 】
+
+④ 「油」をディスペンサーに入れる。
+
+
+
+3．調理
+① 「目玉焼き」をかす揚げ網に乗せ、フライヤーで約15秒油調する。（調理した目玉焼きを冷蔵保管している場合）
+② 「ミックスピーマンスライス」を底平煮ザル等へ入れ、フライヤーで約10秒油調する。
+  ※油調した「ミックスピーマンスライス」は、ホームパック等でフタをして常温保管可能です。
+   使用商材         食数       調理時間   保管期限       使用備品          最大調理：10食(100ｇ)迄
+  ミックスピーマン     1～5食      約10秒             底平煮ザル          油調後1食重量：約9g
+                                常温6時間                    ※温蔵保管不可
+    （冷凍）
+               6～10食     約20秒           フライヤーバスケット">
+          <div class="page-header">
+            <span class="page-badge">18 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_18.png', 'hansoku_cur - ページ 18')">
+            <img src="images/hansoku_cur_18.png" alt="ページ18" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="19"
+             data-searchtext="4．ガパオ調理
+① 中華鍋を強火で熱し、油1杯を入れ全体になじませる。
+② 冷凍のままの「鶏モモミンチ肉」75gを赤みがなくなるまで約1分炒める。                          ※ガパオ炒めの素は油分の多いタレです。必ず調理の度に底からよく攪拌して下さい。
+③ 火を止め、｢ガパオ炒めの素｣18cc(27g)を入れ水分を飛ばすようにして炒める。                     ガパオ炒めの素はバジルの葉が多く入っている為、レードルですくった時、
+                                                                バジルが付着するなどしてオーバーポーションとなる恐れがあります。
+                                                                その為、レードルの周りに付いたタレは振り落として投入して下さい。
+
+
+
+                                                                                        ※1食使用量目安 18㏄レードル山盛り1杯
+
+     トングを使用し、ミンチを細かくしながら炒める。
+
+
+【ガス台使用】                                                                        【電磁調理器使用】
+                                                  中華鍋
+     使用備品                                                                          使用備品             フッ素片手鍋
+                           30㎝以下              30㎝～36㎝               36㎝
+              1食                             調理時間目安                                         1食      調理時間目安
+   使用食材                                                                          使用食材
+              使用量         1食     2食          3食         4食     5食         6食               使用量      1食         ２食
+                                         予熱あり(約30秒)                                                予熱あり(約１分)
+     油        4cc                            油用レードル1杯                             油         4cc    油用レードル1杯
+鶏ミンチ肉(冷凍)     75g      約1分     約1分20秒 約1分30秒           約2分   約2分20秒 約2分50秒     鶏ミンチ肉(冷凍)   75g    約１分20秒 約２分20秒
+  たれ投入時の火力           火を止める                         火を止めない                        たれ投入時の火力            火を止める
+ ガパオ炒めの素      18㏄     約10秒            約20秒                    約30秒             ガパオ炒めの素     18㏄     約10秒    約20秒
+ 合計調理時間              約1分10秒 約1分40秒 約1分50秒 約2分30秒 約2分50秒 約3分20秒                  合計調理時間            約1分30秒 約2分40秒
+         火力                                       強火                                  火力                 強設定
+
+
+最大調理： ガス台        6食迄
+         電磁調理器      2食迄
+1食分盛込量目安:約75g (100cc(DONレードル)すりきり1杯)
+【保管期限】：温蔵3時間
+温蔵保管したガパオは、表面が乾燥するため、全体をよく絡めてから盛り付けて下さい。">
+          <div class="page-header">
+            <span class="page-badge">19 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_19.png', 'hansoku_cur - ページ 19')">
+            <img src="images/hansoku_cur_19.png" alt="ページ19" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="hansoku_cur" data-page="20"
+             data-searchtext="５．ちゃんぽん麺調理
+ ① ジップロック(角大)に冷蔵解凍した「ちゃんぽん麺」2ヶを入れ、フタをずらし、約30秒レンジアップする。
+
+
+
+
+ 【電子レンジ    1800W】                                                          ※レンジアップする際に、麺同士が
+    使用商材      １食使用量        １食（2ヶ）         2食（4ヶ）         3食（6ヶ）             軽く重なっていても問題ありません。
+
+   ちゃんぽん麺                                   約1分          約1分50秒
+                            約30秒
+               2ヶ                         ※ラップをする        ※ラップをする
+    （解凍）               ※フタをずらす
+                                          （隙間を開ける）       （隙間を開ける）
+      使用備品            ジップロック（角大）                  No3.タッパー
+ ※タッパーを使用する場合は、フタに耐熱性がない為使用不可です。代わりに隙間を開けてラップをして下さい。
+
+ ６．ピーク対応マニュアル
+【ピーク対応マニュアル：ビーフェポット保管】
+ ① ジップロック(角大)に冷凍のままの「ちゃんぽん麺」2ヶを入れ、フタをずらし、約1分レンジアップする。
+ 【電子レンジ    1800W】
+      使用商材          １食使用量          １食（2ヶ）            2食（4ヶ）            3食（6ヶ）
+     ちゃんぽん麺                         約1分                約2分             約2分40秒
+                      2ヶ
+      （冷凍）                     ※フタをずらす            ※ラップをする(隙間を開ける)   ※ラップをする(隙間を開ける)
+
+
+           使用備品               ジップロック（角大）                     No3.タッパー                           【保管期限：温蔵２時間】
+
+
+ ※「油」を回しかけた状態でフタをして温蔵保管が可能となります。
+ ※ライスと一緒にビーフェポットでの温蔵保管が可能です。（２段まで）
+
+ ※麺同士がくっつき易くなる為、必ず油をかけた状態で保管して下さい。
+ ※冷凍状態からレンジアップした麺のみ温蔵保管が可能となります。
+ ※解凍状態からレンジアップした麺は、著しく品質が劣化するため温蔵保管不可です。">
+          <div class="page-header">
+            <span class="page-badge">20 / 20</span>
+          </div>
+          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_20.png', 'hansoku_cur - ページ 20')">
+            <img src="images/hansoku_cur_20.png" alt="ページ20" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+          </div>
+        </div>
+    </div>
+    
+  </section>
+</main>
+
+<div id="lightbox" onclick="closeLightboxOutside(event)">
+  <div id="lbToolbar">
+    <span id="lbTitle"></span>
+    <div id="lbZoomControls">
+      <button class="lb-zoom-btn" onclick="lbZoom(-0.25)">－</button>
+      <button class="lb-zoom-btn" onclick="lbZoom(+0.25)">＋</button>
+    </div>
+    <button id="lbClose" onclick="closeLightbox()">✕ 閉じる</button>
+  </div>
+  <div id="lbImgContainer">
+    <img id="lbImg" src="" alt="">
+  </div>
+</div>
+
+<script>
+// ===== スワイプページめくり =====
+const swipeState = {};
+
+function initSwipe(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const blocks = Array.from(container.querySelectorAll('.page-block'));
+  if (blocks.length <= 1) return;
+
+  const state = { current: 0, total: blocks.length, blocks, containerId };
+  swipeState[containerId] = state;
+
+  // ナビ挿入
+  const nav = document.createElement('div');
+  nav.className = 'swipe-nav';
+  nav.id = 'swipe-nav-' + containerId;
+  nav.innerHTML = `
+    <button class="swipe-nav-btn" onclick="swipeTo('${containerId}', -1)">◀</button>
+    <span class="swipe-counter" id="swipe-count-${containerId}">1 / ${blocks.length}</span>
+    <button class="swipe-nav-btn" onclick="swipeTo('${containerId}', +1)">▶</button>`;
+  container.insertBefore(nav, container.firstChild);
+
+  // 初期表示: 最初のページのみ
+  blocks.forEach((b, i) => b.classList.toggle('swipe-hidden', i !== 0));
+  updateSwipeButtons(containerId);
+
+  // タッチスワイプ
+  let startX = 0, startY = 0, tracking = false;
+  container.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+  container.addEventListener('touchend', e => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      swipeTo(containerId, dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+}
+
+function swipeTo(containerId, dir) {
+  const s = swipeState[containerId];
+  if (!s) return;
+  const next = s.current + dir;
+  if (next < 0 || next >= s.total) return;
+  s.blocks[s.current].classList.add('swipe-hidden');
+  s.current = next;
+  s.blocks[s.current].classList.remove('swipe-hidden');
+  updateSwipeButtons(containerId);
+  window.scrollTo({ top: s.blocks[s.current].offsetTop - 180, behavior: 'smooth' });
+}
+
+function swipeGoTo(containerId, pageIdx) {
+  const s = swipeState[containerId];
+  if (!s || pageIdx < 0 || pageIdx >= s.total) return;
+  s.blocks[s.current].classList.add('swipe-hidden');
+  s.current = pageIdx;
+  s.blocks[s.current].classList.remove('swipe-hidden');
+  updateSwipeButtons(containerId);
+}
+
+function updateSwipeButtons(containerId) {
+  const s = swipeState[containerId];
+  if (!s) return;
+  const counter = document.getElementById('swipe-count-' + containerId);
+  if (counter) counter.textContent = (s.current + 1) + ' / ' + s.total;
+  const nav = document.getElementById('swipe-nav-' + containerId);
+  if (nav) {
+    const btns = nav.querySelectorAll('.swipe-nav-btn');
+    if (btns[0]) btns[0].disabled = s.current === 0;
+    if (btns[1]) btns[1].disabled = s.current === s.total - 1;
+  }
+}
+
+// 全コンテナ初期化
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.swipe-container').forEach(c => initSwipe(c.id));
+});
+
+// ===== タブ切替 =====
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).style.display = 'block';
+  document.getElementById('tab-' + id).classList.add('active');
+  const q = document.getElementById('searchInput').value.trim();
+  if (q) highlightSection(id, q);
+}
+
+// ===== 販促計画書 月切替 =====
+function switchMonth(which) {
+  const curContent = document.getElementById('hansoku-cur-content');
+  const prevContent = document.getElementById('hansoku-prev-content');
+  document.querySelectorAll('.month-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('month-tab-' + which)?.classList.add('active');
+  if (which === 'cur') {
+    if (curContent) curContent.style.display = 'block';
+    if (prevContent) prevContent.style.display = 'none';
+  } else {
+    if (curContent) curContent.style.display = 'none';
+    if (prevContent) prevContent.style.display = 'block';
+  }
+}
+
+// ===== 検索 =====
+let searchTimer = null;
+function handleSearch() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(doSearch, 200);
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) { clearSearch(); return; }
+  const lower = q.toLowerCase();
+  const results = [];
+  const sectionCounts = {};
+
+  document.querySelectorAll('.page-block').forEach(block => {
+    const text = (block.dataset.searchtext || '').toLowerCase();
+    const hasMatch = text.includes(lower);
+    block.classList.toggle('highlight', hasMatch);
+    if (hasMatch) {
+      const sid = block.dataset.section;
+      results.push({ sectionId: sid, page: parseInt(block.dataset.page), el: block });
+      const mainSid = sid.startsWith('hansoku') ? 'hansoku' : sid;
+      sectionCounts[mainSid] = (sectionCounts[mainSid] || 0) + 1;
+    }
+  });
+
+  // タブにバッジ表示
+  ['fuzokuhin', 'rice', 'chouri', 'hansoku'].forEach(sid => {
+    const badge = document.getElementById('badge-' + sid);
+    if (badge) {
+      const count = sectionCounts[sid] || 0;
+      badge.textContent = count;
+      badge.classList.toggle('show', count > 0);
+    }
+  });
+
+  const banner = document.getElementById('searchBanner');
+  const nav = document.getElementById('resultNav');
+  document.getElementById('searchKeyword').textContent = q;
+  document.getElementById('resultCount').textContent = results.length;
+  nav.innerHTML = '';
+  banner.style.display = 'block';
+
+  if (results.length > 0) {
+    const sectionTitles = {
+      fuzokuhin: '付属品', rice: 'ライス盛付', chouri: '調理手順',
+      hansoku_cur: '販促(当月)', hansoku_prev: '販促(前月)'
+    };
+    const groups = {};
+    results.forEach(r => {
+      if (!groups[r.sectionId]) groups[r.sectionId] = [];
+      groups[r.sectionId].push(r);
+    });
+    Object.entries(groups).forEach(([sid, rs]) => {
+      rs.forEach(r => {
+        const btn = document.createElement('button');
+        btn.className = 'result-chip';
+        btn.textContent = (sectionTitles[sid] || sid) + ' p.' + r.page;
+        btn.onclick = () => {
+          const mainSection = sid.startsWith('hansoku') ? 'hansoku' : sid;
+          showSection(mainSection);
+          if (sid === 'hansoku_prev') switchMonth('prev');
+          else if (sid === 'hansoku_cur') switchMonth('cur');
+          // スワイプで該当ページに移動
+          const cid = sid.startsWith('hansoku') ? sid.replace('hansoku', 'hansoku') + '-content' : 'swipe-' + mainSection;
+          const pageIdx = r.page - 1;
+          if (swipeState[cid]) swipeGoTo(cid, pageIdx);
+          else if (swipeState['swipe-' + mainSection]) swipeGoTo('swipe-' + mainSection, pageIdx);
+          setTimeout(() => r.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+        };
+        nav.appendChild(btn);
+      });
+    });
+
+    // 最初の結果のセクションに遷移
+    const firstResult = results[0];
+    const mainSection = firstResult.sectionId.startsWith('hansoku') ? 'hansoku' : firstResult.sectionId;
+    showSection(mainSection);
+    if (firstResult.sectionId === 'hansoku_prev') switchMonth('prev');
+    // スワイプページ移動
+    const firstCid = 'swipe-' + mainSection;
+    if (swipeState[firstCid]) swipeGoTo(firstCid, firstResult.page - 1);
+    setTimeout(() => firstResult.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  } else {
+    nav.innerHTML = '<span style="font-size:12px;color:#888;">見つかりませんでした</span>';
+  }
+}
+
+function highlightSection(sectionId, q) {
+  const lower = q.toLowerCase();
+  const selector = sectionId === 'hansoku'
+    ? '.page-block[data-section^="hansoku"]'
+    : `.page-block[data-section="${sectionId}"]`;
+  document.querySelectorAll(selector).forEach(block => {
+    block.classList.toggle('highlight', (block.dataset.searchtext || '').toLowerCase().includes(lower));
+  });
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.page-block').forEach(b => b.classList.remove('highlight'));
+  document.getElementById('searchBanner').style.display = 'none';
+  // バッジ非表示
+  document.querySelectorAll('.tab-badge').forEach(b => b.classList.remove('show'));
+}
+
+// ===== ライトボックス =====
+let lbScale = 1.0;
+
+function openLightbox(imgSrc, title) {
+  lbScale = 1.0;
+  const img = document.getElementById('lbImg');
+  document.getElementById('lbTitle').textContent = title;
+  img.src = imgSrc;
+  img.style.width = '100%';
+  img.style.maxWidth = '100%';
+  img.onerror = () => {
+    img.alt = '画像を読み込めませんでした';
+    img.style.width = 'auto'; img.style.padding = '40px'; img.style.opacity = '0.4';
+  };
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeLightboxOutside(e) {
+  if (e.target === document.getElementById('lightbox') ||
+      e.target === document.getElementById('lbImgContainer')) closeLightbox();
+}
+
+function lbZoom(delta) {
+  lbScale = Math.min(5, Math.max(0.5, lbScale + delta));
+  const img = document.getElementById('lbImg');
+  img.style.width = Math.round(lbScale * 100) + '%';
+  img.style.maxWidth = 'none';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === '+' || e.key === '=') lbZoom(+0.25);
+  if (e.key === '-') lbZoom(-0.25);
+  // 左右キーでスワイプ
+  const activeSection = document.querySelector('.section[style*="display:block"], .section[style*="display: block"]');
+  if (activeSection) {
+    const sc = activeSection.querySelector('.swipe-container');
+    if (sc && swipeState[sc.id]) {
+      if (e.key === 'ArrowLeft') swipeTo(sc.id, -1);
+      if (e.key === 'ArrowRight') swipeTo(sc.id, +1);
+    }
+  }
+});
+
+
+</script>
+</div><!-- /appContent -->
+
+<script>
+// ===== 認証 =====
+(function() {
+  var AUTH_HASH = '105d111a273342cc44107a3879f39d6c6ef3d225a5f2b8c9ffd2e898059cf1d6';
+  var EXPIRES = "2026-05-31";
+  var MAX_ATTEMPTS = 5;
+  var attempts = 0;
+
+  function sha256(text) {
+    function rr(n,x){return(x>>>n)|(x<<(32-n))}
+    var K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+      0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+      0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+      0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+      0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+      0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+      0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+      0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    var i, off;
+    var bytes = [];
+    for (i = 0; i < text.length; i++) {
+      var c = text.charCodeAt(i);
+      if (c < 0x80) bytes.push(c);
+      else if (c < 0x800) { bytes.push(0xc0|(c>>6)); bytes.push(0x80|(c&0x3f)); }
+      else { bytes.push(0xe0|(c>>12)); bytes.push(0x80|((c>>6)&0x3f)); bytes.push(0x80|(c&0x3f)); }
+    }
+    var len = bytes.length;
+    var bits = len * 8;
+    var padLen = ((len + 9 + 63) & ~63);
+    var pad = [];
+    for (i = 0; i < padLen; i++) pad[i] = 0;
+    for (i = 0; i < len; i++) pad[i] = bytes[i];
+    pad[len] = 0x80;
+    pad[padLen-4] = (bits >>> 24) & 0xff;
+    pad[padLen-3] = (bits >>> 16) & 0xff;
+    pad[padLen-2] = (bits >>> 8) & 0xff;
+    pad[padLen-1] = bits & 0xff;
+    var h0=0x6a09e667,h1=0xbb67ae85,h2=0x3c6ef372,h3=0xa54ff53a;
+    var h4=0x510e527f,h5=0x9b05688c,h6=0x1f83d9ab,h7=0x5be0cd19;
+    for (off = 0; off < padLen; off += 64) {
+      var w = [];
+      for (i = 0; i < 16; i++) w[i] = (pad[off+i*4]<<24)|(pad[off+i*4+1]<<16)|(pad[off+i*4+2]<<8)|pad[off+i*4+3];
+      for (i = 16; i < 64; i++) {
+        var s0 = (rr(7,w[i-15])^rr(18,w[i-15])^(w[i-15]>>>3));
+        var s1 = (rr(17,w[i-2])^rr(19,w[i-2])^(w[i-2]>>>10));
+        w[i] = (w[i-16]+s0+w[i-7]+s1)|0;
+      }
+      var a=h0,b=h1,c=h2,d=h3,e=h4,f=h5,g=h6,h=h7;
+      for (i = 0; i < 64; i++) {
+        var S1=rr(6,e)^rr(11,e)^rr(25,e);
+        var ch=(e&f)^(~e&g);
+        var t1=(h+S1+ch+K[i]+w[i])|0;
+        var S0=rr(2,a)^rr(13,a)^rr(22,a);
+        var maj=(a&b)^(a&c)^(b&c);
+        var t2=(S0+maj)|0;
+        h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+      }
+      h0=(h0+a)|0;h1=(h1+b)|0;h2=(h2+c)|0;h3=(h3+d)|0;
+      h4=(h4+e)|0;h5=(h5+f)|0;h6=(h6+g)|0;h7=(h7+h)|0;
+    }
+    var hex = '';
+    var vals = [h0,h1,h2,h3,h4,h5,h6,h7];
+    for (i = 0; i < 8; i++) {
+      var v = (vals[i] >>> 0).toString(16);
+      while (v.length < 8) v = '0' + v;
+      hex += v;
+    }
+    return hex;
+  }
+
+  function sGet(k) { try { return sessionStorage.getItem(k); } catch(e) { return null; } }
+  function sSet(k,v) { try { sessionStorage.setItem(k,v); } catch(e) {} }
+  function lGet(k) { try { return localStorage.getItem(k); } catch(e) { return null; } }
+  function lSet(k,v) { try { localStorage.setItem(k,v); } catch(e) {} }
+  function lDel(k) { try { localStorage.removeItem(k); } catch(e) {} }
+
+  function checkExpiry() {
+    if (!EXPIRES) return false;
+    var now = new Date();
+    var exp = new Date(EXPIRES + 'T23:59:59');
+    return now > exp;
+  }
+
+  function showContent() {
+    document.getElementById('lockScreen').classList.add('hidden');
+    document.getElementById('appContent').style.display = '';
+  }
+
+  function initAuth() {
+    var expired = checkExpiry();
+    if (expired) {
+      document.getElementById('expiredMsg').style.display = 'block';
+      document.getElementById('lockForm').style.display = 'none';
+      document.getElementById('lockError').textContent = '';
+      return;
+    }
+    if (sGet('hm_manual_auth') === 'ok') {
+      showContent();
+      return;
+    }
+    var lockout = lGet('hm_manual_lockout');
+    if (lockout) {
+      var lockTime = parseInt(lockout);
+      var elapsed = Date.now() - lockTime;
+      if (elapsed < 300000) {
+        var remain = Math.ceil((300000 - elapsed) / 60000);
+        document.getElementById('lockError').textContent =
+          '試行回数超過。' + remain + '分後に再試行してください。';
+        document.getElementById('lockBtn').disabled = true;
+        document.getElementById('lockPassword').disabled = true;
+        return;
+      } else {
+        lDel('hm_manual_lockout');
+      }
+    }
+  }
+
+  window.handleLogin = function(e) {
+    e.preventDefault();
+    var pw = document.getElementById('lockPassword').value;
+    if (!pw) return false;
+    var hash = sha256(pw);
+    if (hash === AUTH_HASH) {
+      sSet('hm_manual_auth', 'ok');
+      attempts = 0;
+      lDel('hm_manual_lockout');
+      showContent();
+    } else {
+      attempts++;
+      var remain = MAX_ATTEMPTS - attempts;
+      if (remain <= 0) {
+        lSet('hm_manual_lockout', Date.now().toString());
+        document.getElementById('lockError').textContent =
+          '試行回数超過。5分間ロックされます。';
+        document.getElementById('lockBtn').disabled = true;
+        document.getElementById('lockPassword').disabled = true;
+      } else {
+        document.getElementById('lockError').textContent =
+          'パスワードが違います（残り' + remain + '回）';
+      }
+      document.getElementById('lockPassword').value = '';
+    }
+    return false;
+  };
+
+  // 初期化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+  } else {
+    initAuth();
+  }
+})();
+</script>
+
+</body>
+</html>
