@@ -233,8 +233,14 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     changed_pages_map = changed_pages_map or {}
 
     def get_section_images_texts(prefix, page_count, text_file):
-        images = [f"images/{prefix}-{i}.png" for i in range(1, page_count + 1)]
-        images = [f for f in images if os.path.exists(os.path.join(SCRIPT_DIR, f))]
+        # pdftoppm は総ページ数の桁数に応じてゼロ埋めする（10+ → 2桁、100+ → 3桁）
+        pad = max(1, len(str(page_count)))
+        images = []
+        for i in range(1, page_count + 1):
+            for candidate in [f"images/{prefix}-{i:0{pad}d}.png", f"images/{prefix}-{i}.png"]:
+                if os.path.exists(os.path.join(SCRIPT_DIR, candidate)):
+                    images.append(candidate)
+                    break
         texts = []
         tf = os.path.join(IMAGES_DIR, text_file)
         if os.path.exists(tf):
