@@ -98,6 +98,7 @@ def load_config():
         "fuzokuhin": {"month": "2026年5月", "pages": 3},
         "rice":      {"month": "2026年5月", "pages": 2},
         "chouri":    {"month": "2026年5月", "pages": 7},
+        "chouri_zen": {"month": "2026年3月", "pages": 0},
         "hansoku_cur":  {"month": "2026年5月", "pages": HANSOKU_PAGES},
         "hansoku_prev": {"month": None, "pages": 0},
     }
@@ -244,17 +245,21 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     fuz_pages = config.get("fuzokuhin", {}).get("pages", 3)
     rice_pages = config.get("rice", {}).get("pages", 2)
     cho_pages = config.get("chouri", {}).get("pages", 7)
+    chozen_pages = config.get("chouri_zen", {}).get("pages", 0)
     fuz_month = config.get("fuzokuhin", {}).get("month", "")
     rice_month = config.get("rice", {}).get("month", "")
     cho_month = config.get("chouri", {}).get("month", "")
+    chozen_month = config.get("chouri_zen", {}).get("month", "")
 
     fuz_imgs, fuz_texts = get_section_images_texts("fuzokuhin", fuz_pages, "fuzokuhin_text.txt")
     rice_imgs, rice_texts = get_section_images_texts("rice", rice_pages, "rice_text.txt")
     cho_imgs, cho_texts = get_section_images_texts("chouri", cho_pages, "chouri_text.txt")
+    chozen_imgs, chozen_texts = get_section_images_texts("chouri_zen", chozen_pages, "chouri_zen_text.txt")
 
     fuz_blocks = build_page_blocks("fuzokuhin", fuz_imgs, fuz_texts, changed_pages_map.get("fuzokuhin", set()), embed_images)
     rice_blocks = build_page_blocks("rice", rice_imgs, rice_texts, changed_pages_map.get("rice", set()), embed_images)
     cho_blocks = build_page_blocks("chouri", cho_imgs, cho_texts, changed_pages_map.get("chouri", set()), embed_images)
+    chozen_blocks = build_page_blocks("chouri_zen", chozen_imgs, chozen_texts, changed_pages_map.get("chouri_zen", set()), embed_images)
     hansoku_section = build_hansoku_section(config, changed_pages_map.get("hansoku_cur", set()), embed_images)
 
     cur_month = config.get("hansoku_cur", {}).get("month", "")
@@ -704,7 +709,8 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
   <div class="tabs">
     <button class="tab-btn active" onclick="showSection('fuzokuhin')" id="tab-fuzokuhin">📋 <span class="tab-label">付属品</span><span class="tab-badge" id="badge-fuzokuhin"></span></button>
     <button class="tab-btn" onclick="showSection('rice')" id="tab-rice">🍚 <span class="tab-label">ライス盛付</span><span class="tab-badge" id="badge-rice"></span></button>
-    <button class="tab-btn" onclick="showSection('chouri')" id="tab-chouri">🍳 <span class="tab-label">調理手順</span><span class="tab-badge" id="badge-chouri"></span></button>
+    <button class="tab-btn" onclick="showSection('chouri')" id="tab-chouri">🍳 <span class="tab-label">調理(季節)</span><span class="tab-badge" id="badge-chouri"></span></button>
+    <button class="tab-btn" onclick="showSection('chouri_zen')" id="tab-chouri_zen">🍳 <span class="tab-label">調理(全国)</span><span class="tab-badge" id="badge-chouri_zen"></span></button>
     <button class="tab-btn" onclick="showSection('hansoku')" id="tab-hansoku">📣 <span class="tab-label">販促計画</span><span class="tab-badge" id="badge-hansoku"></span></button>
   </div>
 </header>
@@ -742,6 +748,16 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     </div>
     <div class="swipe-container" id="swipe-chouri">
       {cho_blocks}
+    </div>
+  </section>
+
+  <section id="section-chouri_zen" class="section" style="display:none">
+    <div class="section-header">
+      <h2>🍳 調理手順シート（全国版）</h2>
+      <p class="section-desc">{chozen_month}版 全国共通メニューの調理・盛付手順</p>
+    </div>
+    <div class="swipe-container" id="swipe-chouri_zen">
+      {chozen_blocks}
     </div>
   </section>
 
@@ -936,7 +952,7 @@ function doSearch() {{
   }});
 
   // タブにバッジ表示
-  ['fuzokuhin', 'rice', 'chouri', 'hansoku'].forEach(sid => {{
+  ['fuzokuhin', 'rice', 'chouri', 'chouri_zen', 'hansoku'].forEach(sid => {{
     const badge = document.getElementById('badge-' + sid);
     if (badge) {{
       const count = sectionCounts[sid] || 0;
@@ -954,7 +970,7 @@ function doSearch() {{
 
   if (results.length > 0) {{
     const sectionTitles = {{
-      fuzokuhin: '付属品', rice: 'ライス盛付', chouri: '調理手順',
+      fuzokuhin: '付属品', rice: 'ライス盛付', chouri: '調理(季節)', chouri_zen: '調理(全国)',
       hansoku_cur: '販促(当月)', hansoku_prev: '販促(前月)'
     }};
     const groups = {{}};
@@ -1150,7 +1166,8 @@ def main():
     )
     parser.add_argument("--fuzokuhin", help="HM付属品一覧 PDFのパス")
     parser.add_argument("--rice",      help="ライス盛付 PDFのパス")
-    parser.add_argument("--chouri",    help="調理手順シート PDFのパス")
+    parser.add_argument("--chouri",    help="調理手順シート（季節商品）PDFのパス")
+    parser.add_argument("--chouri-zen", dest="chouri_zen", help="調理手順シート（全国版）PDFのパス")
     parser.add_argument("--hansoku",   help="販促計画書 PDFのパス（当月）")
     parser.add_argument("--month",     help='当月ラベル（例: "2026年6月"）')
     parser.add_argument("--password",  help='閲覧パスワード（SHA-256ハッシュ化して埋め込み）')
@@ -1158,7 +1175,7 @@ def main():
     parser.add_argument("--embed",     action="store_true", help='画像をBase64埋め込み（HTMLファイル1つで完結）')
     args = parser.parse_args()
 
-    if not any([args.fuzokuhin, args.rice, args.chouri, args.hansoku]):
+    if not any([args.fuzokuhin, args.rice, args.chouri, args.chouri_zen, args.hansoku]):
         print("❌ 更新するPDFを最低1つ指定してください。")
         print("   使い方: python3 update_manual.py --help")
         return
@@ -1188,6 +1205,13 @@ def main():
         pages, changed = update_section("調理手順シート", args.chouri, "chouri", config)
         config["chouri"] = {"month": month, "pages": pages}
         changed_pages_map["chouri"] = changed
+
+    # 調理手順（全国版）
+    if args.chouri_zen:
+        month = args.month or detect_month_from_filename(args.chouri_zen) or "不明"
+        pages, changed = update_section("調理手順シート（全国版）", args.chouri_zen, "chouri_zen", config)
+        config["chouri_zen"] = {"month": month, "pages": pages}
+        changed_pages_map["chouri_zen"] = changed
 
     # 販促計画書
     if args.hansoku:
