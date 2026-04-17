@@ -84,7 +84,7 @@ def extract_text(pdf_path, first=None, last=None):
 def detect_month_from_filename(path):
     """ファイル名から年月を検出（例: 2026年05月 → "2026年5月"）"""
     name = os.path.basename(path)
-    m = re.search(r'(\d{4})[年_](\d{1,2})月?', name)
+    m = re.search(r'(\d{4})[年_.](\d{1,2})[月\]】.]?', name)
     if m:
         return f"{m.group(1)}年{int(m.group(2))}月"
     return None
