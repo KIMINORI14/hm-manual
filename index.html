@@ -220,14 +220,12 @@
     @media (max-width: 600px) {
       .stamp { font-size: 11px; padding: 3px 10px; letter-spacing: 1px; border-width: 2px; }
     }
-    body.edit-mode .stamp {
+    body.edit-mode:not(.delete-mode) .page-img-wrap { cursor: crosshair; }
+    body.edit-mode.delete-mode .stamp {
       pointer-events: auto; cursor: pointer;
     }
-    body.edit-mode .stamp:hover {
+    body.edit-mode.delete-mode .stamp:hover {
       background: #e74c3c; color: white;
-    }
-    body.edit-mode .page-img-wrap {
-      cursor: crosshair;
     }
     body.edit-mode .zoom-hint { display: none; }
 
@@ -251,6 +249,13 @@
     #editBar button.secondary { background: #7f8c8d; }
     #editBar button.secondary:hover { background: #636e72; }
     #editBar button.danger { background: #c0392b; }
+    #editBar .mode-group { display: flex; gap: 4px; background: rgba(255,255,255,0.1); padding: 3px; border-radius: 6px; }
+    #editBar .mode-btn {
+      background: transparent; color: rgba(255,255,255,0.6); font-weight: 600;
+      padding: 6px 10px; border-radius: 4px; font-size: 12px;
+    }
+    #editBar .mode-btn.active { background: #f39c12; color: white; }
+    #editBar .mode-btn:hover:not(.active) { background: rgba(255,255,255,0.15); color: white; }
 
     /* ===== ロック画面 ===== */
     #lockScreen {
@@ -4012,9 +4017,12 @@ Pしょうが焼きのたれ24 36cc×2杯
 </main>
 
 <div id="editBar">
-  <span class="edit-info">✏️ 編集モード：画像をタップで販売終了スタンプ追加／スタンプをタップで削除</span>
-  <button onclick="copyStampsJson()">📋 JSONコピー</button>
-  <button class="secondary" onclick="clearCurrentPageStamps()">このページクリア</button>
+  <div class="mode-group">
+    <button class="mode-btn active" id="modePlace" onclick="setEditSubMode('place')">📍 配置</button>
+    <button class="mode-btn" id="modeDelete" onclick="setEditSubMode('delete')">🗑 削除</button>
+  </div>
+  <span class="edit-info" id="editInfo">画像をタップでスタンプ配置</span>
+  <button onclick="saveStamps()">💾 保存</button>
   <button class="danger" onclick="exitEditMode()">終了</button>
 </div>
 
@@ -4338,10 +4346,26 @@ document.addEventListener('keydown', e => {
 // ===== 販売終了スタンプ =====
 var STAMPS_DATA = {};
 var EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
+var EDIT_SUB_MODE = 'place'; // 'place' or 'delete'
+var GITHUB_EDIT_URL = 'https://github.com/KIMINORI14/hm-manual/edit/main/stamps.json';
+
+function setEditSubMode(mode) {
+  EDIT_SUB_MODE = mode;
+  var pb = document.getElementById('modePlace');
+  var db = document.getElementById('modeDelete');
+  if (pb) pb.classList.toggle('active', mode === 'place');
+  if (db) db.classList.toggle('active', mode === 'delete');
+  document.body.classList.toggle('delete-mode', mode === 'delete');
+  var info = document.getElementById('editInfo');
+  if (info) info.textContent = mode === 'place'
+    ? '画像をタップでスタンプ配置'
+    : '既存スタンプをタップで削除';
+}
 
 function handleImgClick(ev, wrap, imgSrc, title) {
   if (!EDIT_MODE) { openLightbox(imgSrc, title); return; }
-  // 編集モード: スタンプ追加
+  // 編集モード: 配置モード時のみ追加
+  if (EDIT_SUB_MODE !== 'place') return;
   var block = wrap.closest('.page-block');
   var sid = block.dataset.section;
   if (sid && sid.indexOf('hansoku') === 0) { openLightbox(imgSrc, title); return; }
@@ -4370,7 +4394,7 @@ function renderStamps() {
       el.style.left = s.x + '%';
       el.style.top = s.y + '%';
       el.addEventListener('click', function(e) {
-        if (!EDIT_MODE) return;
+        if (!EDIT_MODE || EDIT_SUB_MODE !== 'delete') return;
         e.stopPropagation();
         STAMPS_DATA[sid][page].splice(idx, 1);
         if (STAMPS_DATA[sid][page].length === 0) delete STAMPS_DATA[sid][page];
@@ -4382,40 +4406,38 @@ function renderStamps() {
   });
 }
 
-function copyStampsJson() {
+function saveStamps() {
   var text = JSON.stringify(STAMPS_DATA, null, 2);
+  function proceed() {
+    var msg = '📋 クリップボードにコピーしました。\n\n' +
+              'これからGitHubの編集画面を開きます。\n' +
+              '1. 既存の内容を全選択（Cmd+A / Ctrl+A）\n' +
+              '2. 貼り付け（Cmd+V / Ctrl+V）\n' +
+              '3. 画面下の「Commit changes」をクリック\n\n' +
+              '※ログインが必要な場合はGitHubにログインしてください';
+    alert(msg);
+    window.open(GITHUB_EDIT_URL, '_blank');
+  }
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      alert('📋 JSONをコピーしました。stamps.json に貼り付けてコミットしてください。');
-    }).catch(function() { showJsonFallback(text); });
+    navigator.clipboard.writeText(text).then(proceed).catch(function() { showJsonFallback(text); });
   } else {
     showJsonFallback(text);
   }
 }
 
 function showJsonFallback(text) {
-  var ta = document.createElement('textarea');
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;flex-direction:column;padding:20px;';
+  modal.innerHTML = '<div style="color:white;margin-bottom:10px;font-size:14px;">下のテキストをコピーして、開いたGitHubのエディタに貼り付けてください</div>' +
+    '<textarea style="flex:1;width:100%;font-size:12px;padding:10px;font-family:monospace;"></textarea>' +
+    '<div style="margin-top:10px;display:flex;gap:10px;">' +
+    '<button onclick="window.open(GITHUB_EDIT_URL, \'_blank\')" style="background:#f39c12;color:white;border:none;padding:10px 20px;border-radius:6px;font-weight:700;">GitHubを開く</button>' +
+    '<button onclick="this.closest(\'div[style*=inset]\').remove()" style="background:#7f8c8d;color:white;border:none;padding:10px 20px;border-radius:6px;">閉じる</button></div>';
+  document.body.appendChild(modal);
+  var ta = modal.querySelector('textarea');
   ta.value = text;
-  ta.style.cssText = 'position:fixed;top:10%;left:5%;width:90%;height:60%;z-index:9999;font-size:12px;padding:10px;';
-  document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand('copy'); alert('コピーしました'); } catch(e) { alert('手動でコピーしてください'); }
-  setTimeout(function() { ta.remove(); }, 100);
-}
-
-function clearCurrentPageStamps() {
-  var activeSection = document.querySelector('.section[style*="display:block"], .section[style*="display: block"]');
-  if (!activeSection) return;
-  var visibleBlock = activeSection.querySelector('.page-block:not(.swipe-hidden)');
-  if (!visibleBlock) return;
-  var sid = visibleBlock.dataset.section;
-  var page = visibleBlock.dataset.page;
-  if (STAMPS_DATA[sid] && STAMPS_DATA[sid][page]) {
-    if (!confirm('このページの販売終了スタンプをすべて削除しますか？')) return;
-    delete STAMPS_DATA[sid][page];
-    if (Object.keys(STAMPS_DATA[sid]).length === 0) delete STAMPS_DATA[sid];
-    renderStamps();
-  }
+  try { document.execCommand('copy'); } catch(e) {}
 }
 
 function exitEditMode() {
