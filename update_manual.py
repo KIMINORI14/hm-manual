@@ -154,9 +154,10 @@ def build_page_blocks(section_id, images, texts, changed_pages=None, embed_image
         img_src = img_to_data_uri(img_path) if embed_images else img_path
         # ライトボックス用: 埋め込み時はthis.querySelector('img').srcを使う
         if embed_images:
-            lb_onclick = f"openLightbox(this.querySelector('img').src, '{section_id} - ページ {page_num}')"
+            img_arg = "this.querySelector('img').src"
         else:
-            lb_onclick = f"openLightbox('{img_path}', '{section_id} - ページ {page_num}')"
+            img_arg = f"'{img_path}'"
+        lb_onclick = f"handleImgClick(event, this, {img_arg}, '{section_id} - ページ {page_num}')"
         parts.append(f'''
         <div class="page-block" data-section="{section_id}" data-page="{page_num}"
              data-searchtext="{safe_text}"{changed_attr}>
@@ -166,6 +167,7 @@ def build_page_blocks(section_id, images, texts, changed_pages=None, embed_image
           <div class="page-img-wrap" onclick="{lb_onclick}">
             <img src="{img_src}" alt="ページ{page_num}" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>''')
     return "\n".join(parts)
@@ -694,6 +696,59 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
       padding: 10px; -webkit-overflow-scrolling: touch;
     }}
     #lbImg {{ width: 100%; max-width: 100%; height: auto; display: block; transition: width 0.15s; }}
+
+    /* ===== 販売終了スタンプ ===== */
+    .stamp-layer {{
+      position: absolute; inset: 0; pointer-events: none;
+    }}
+    .stamp {{
+      position: absolute;
+      transform: translate(-50%, -50%) rotate(-14deg);
+      border: 3px solid #e74c3c; color: #e74c3c;
+      font-weight: 900; padding: 4px 14px;
+      background: rgba(255,255,255,0.9);
+      font-size: 14px; white-space: nowrap;
+      pointer-events: none;
+      border-radius: 4px; letter-spacing: 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      text-shadow: 0 0 1px rgba(231,76,60,0.3);
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      user-select: none;
+    }}
+    @media (max-width: 600px) {{
+      .stamp {{ font-size: 11px; padding: 3px 10px; letter-spacing: 1px; border-width: 2px; }}
+    }}
+    body.edit-mode .stamp {{
+      pointer-events: auto; cursor: pointer;
+    }}
+    body.edit-mode .stamp:hover {{
+      background: #e74c3c; color: white;
+    }}
+    body.edit-mode .page-img-wrap {{
+      cursor: crosshair;
+    }}
+    body.edit-mode .zoom-hint {{ display: none; }}
+
+    /* 編集ツールバー */
+    #editBar {{
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: #2c3e50; color: white; padding: 10px 14px;
+      z-index: 500; box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+      font-size: 13px;
+      align-items: center; gap: 10px; flex-wrap: wrap;
+    }}
+    body.edit-mode #editBar {{ display: flex; }}
+    body.edit-mode {{ padding-bottom: 64px; }}
+    #editBar .edit-info {{ flex: 1; font-size: 12px; }}
+    #editBar button {{
+      background: #f39c12; color: white; border: none;
+      padding: 8px 14px; border-radius: 6px; font-size: 13px;
+      cursor: pointer; font-weight: 700;
+    }}
+    #editBar button:hover {{ background: #e67e22; }}
+    #editBar button.secondary {{ background: #7f8c8d; }}
+    #editBar button.secondary:hover {{ background: #636e72; }}
+    #editBar button.danger {{ background: #c0392b; }}
 {lock_css}
   </style>
 </head>
@@ -769,6 +824,13 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
 
 {hansoku_section}
 </main>
+
+<div id="editBar">
+  <span class="edit-info">✏️ 編集モード：画像をタップで販売終了スタンプ追加／スタンプをタップで削除</span>
+  <button onclick="copyStampsJson()">📋 JSONコピー</button>
+  <button class="secondary" onclick="clearCurrentPageStamps()">このページクリア</button>
+  <button class="danger" onclick="exitEditMode()">終了</button>
+</div>
 
 <div id="lightbox" onclick="closeLightboxOutside(event)">
   <div id="lbToolbar">
@@ -1085,6 +1147,107 @@ document.addEventListener('keydown', e => {{
       if (e.key === 'ArrowRight') swipeTo(sc.id, +1);
     }}
   }}
+}});
+
+// ===== 販売終了スタンプ =====
+var STAMPS_DATA = {{}};
+var EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
+
+function handleImgClick(ev, wrap, imgSrc, title) {{
+  if (!EDIT_MODE) {{ openLightbox(imgSrc, title); return; }}
+  // 編集モード: スタンプ追加
+  var block = wrap.closest('.page-block');
+  var sid = block.dataset.section;
+  if (sid && sid.indexOf('hansoku') === 0) {{ openLightbox(imgSrc, title); return; }}
+  var page = block.dataset.page;
+  var rect = wrap.getBoundingClientRect();
+  var x = ((ev.clientX - rect.left) / rect.width) * 100;
+  var y = ((ev.clientY - rect.top) / rect.height) * 100;
+  if (!STAMPS_DATA[sid]) STAMPS_DATA[sid] = {{}};
+  if (!STAMPS_DATA[sid][page]) STAMPS_DATA[sid][page] = [];
+  STAMPS_DATA[sid][page].push({{ x: +x.toFixed(2), y: +y.toFixed(2) }});
+  renderStamps();
+}}
+
+function renderStamps() {{
+  document.querySelectorAll('.page-block').forEach(function(block) {{
+    var sid = block.dataset.section;
+    var page = block.dataset.page;
+    var layer = block.querySelector('.stamp-layer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    var stamps = (STAMPS_DATA[sid] && STAMPS_DATA[sid][page]) || [];
+    stamps.forEach(function(s, idx) {{
+      var el = document.createElement('div');
+      el.className = 'stamp';
+      el.textContent = '販売終了';
+      el.style.left = s.x + '%';
+      el.style.top = s.y + '%';
+      el.addEventListener('click', function(e) {{
+        if (!EDIT_MODE) return;
+        e.stopPropagation();
+        STAMPS_DATA[sid][page].splice(idx, 1);
+        if (STAMPS_DATA[sid][page].length === 0) delete STAMPS_DATA[sid][page];
+        if (Object.keys(STAMPS_DATA[sid]).length === 0) delete STAMPS_DATA[sid];
+        renderStamps();
+      }});
+      layer.appendChild(el);
+    }});
+  }});
+}}
+
+function copyStampsJson() {{
+  var text = JSON.stringify(STAMPS_DATA, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {{
+    navigator.clipboard.writeText(text).then(function() {{
+      alert('📋 JSONをコピーしました。stamps.json に貼り付けてコミットしてください。');
+    }}).catch(function() {{ showJsonFallback(text); }});
+  }} else {{
+    showJsonFallback(text);
+  }}
+}}
+
+function showJsonFallback(text) {{
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:10%;left:5%;width:90%;height:60%;z-index:9999;font-size:12px;padding:10px;';
+  document.body.appendChild(ta);
+  ta.select();
+  try {{ document.execCommand('copy'); alert('コピーしました'); }} catch(e) {{ alert('手動でコピーしてください'); }}
+  setTimeout(function() {{ ta.remove(); }}, 100);
+}}
+
+function clearCurrentPageStamps() {{
+  var activeSection = document.querySelector('.section[style*="display:block"], .section[style*="display: block"]');
+  if (!activeSection) return;
+  var visibleBlock = activeSection.querySelector('.page-block:not(.swipe-hidden)');
+  if (!visibleBlock) return;
+  var sid = visibleBlock.dataset.section;
+  var page = visibleBlock.dataset.page;
+  if (STAMPS_DATA[sid] && STAMPS_DATA[sid][page]) {{
+    if (!confirm('このページの販売終了スタンプをすべて削除しますか？')) return;
+    delete STAMPS_DATA[sid][page];
+    if (Object.keys(STAMPS_DATA[sid]).length === 0) delete STAMPS_DATA[sid];
+    renderStamps();
+  }}
+}}
+
+function exitEditMode() {{
+  var url = new URL(location.href);
+  url.searchParams.delete('edit');
+  location.href = url.toString();
+}}
+
+function loadStamps() {{
+  fetch('stamps.json', {{ cache: 'no-store' }})
+    .then(function(r) {{ return r.ok ? r.json() : {{}}; }})
+    .then(function(d) {{ STAMPS_DATA = d || {{}}; renderStamps(); }})
+    .catch(function() {{ renderStamps(); }});
+}}
+
+document.addEventListener('DOMContentLoaded', function() {{
+  if (EDIT_MODE) document.body.classList.add('edit-mode');
+  loadStamps();
 }});
 
 

@@ -199,6 +199,59 @@
     }
     #lbImg { width: 100%; max-width: 100%; height: auto; display: block; transition: width 0.15s; }
 
+    /* ===== 販売終了スタンプ ===== */
+    .stamp-layer {
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    .stamp {
+      position: absolute;
+      transform: translate(-50%, -50%) rotate(-14deg);
+      border: 3px solid #e74c3c; color: #e74c3c;
+      font-weight: 900; padding: 4px 14px;
+      background: rgba(255,255,255,0.9);
+      font-size: 14px; white-space: nowrap;
+      pointer-events: none;
+      border-radius: 4px; letter-spacing: 2px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      text-shadow: 0 0 1px rgba(231,76,60,0.3);
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      user-select: none;
+    }
+    @media (max-width: 600px) {
+      .stamp { font-size: 11px; padding: 3px 10px; letter-spacing: 1px; border-width: 2px; }
+    }
+    body.edit-mode .stamp {
+      pointer-events: auto; cursor: pointer;
+    }
+    body.edit-mode .stamp:hover {
+      background: #e74c3c; color: white;
+    }
+    body.edit-mode .page-img-wrap {
+      cursor: crosshair;
+    }
+    body.edit-mode .zoom-hint { display: none; }
+
+    /* 編集ツールバー */
+    #editBar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: #2c3e50; color: white; padding: 10px 14px;
+      z-index: 500; box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
+      font-size: 13px;
+      align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    body.edit-mode #editBar { display: flex; }
+    body.edit-mode { padding-bottom: 64px; }
+    #editBar .edit-info { flex: 1; font-size: 12px; }
+    #editBar button {
+      background: #f39c12; color: white; border: none;
+      padding: 8px 14px; border-radius: 6px; font-size: 13px;
+      cursor: pointer; font-weight: 700;
+    }
+    #editBar button:hover { background: #e67e22; }
+    #editBar button.secondary { background: #7f8c8d; }
+    #editBar button.secondary:hover { background: #636e72; }
+    #editBar button.danger { background: #c0392b; }
+
     /* ===== ロック画面 ===== */
     #lockScreen {
       position: fixed; inset: 0; z-index: 9999;
@@ -261,7 +314,7 @@
 <header class="app-header">
   <div class="app-title">
     🍱 HM マニュアル <span class="ver">2026年5月版</span>
-    <span class="updated">更新: 2026年04月17日</span>
+    <span class="updated">更新: 2026年04月23日</span>
   </div>
   <div class="search-bar">
     <div class="search-wrap">
@@ -328,9 +381,10 @@
           <div class="page-header">
             <span class="page-badge">1 / 3</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-1.png', 'fuzokuhin - ページ 1')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/fuzokuhin-1.png', 'fuzokuhin - ページ 1')">
             <img src="images/fuzokuhin-1.png" alt="ページ1" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -382,9 +436,10 @@
           <div class="page-header">
             <span class="page-badge">2 / 3</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-2.png', 'fuzokuhin - ページ 2')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/fuzokuhin-2.png', 'fuzokuhin - ページ 2')">
             <img src="images/fuzokuhin-2.png" alt="ページ2" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -436,9 +491,10 @@
           <div class="page-header">
             <span class="page-badge">3 / 3</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/fuzokuhin-3.png', 'fuzokuhin - ページ 3')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/fuzokuhin-3.png', 'fuzokuhin - ページ 3')">
             <img src="images/fuzokuhin-3.png" alt="ページ3" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
     </div>
@@ -528,9 +584,10 @@
           <div class="page-header">
             <span class="page-badge">1 / 2</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/rice-1.png', 'rice - ページ 1')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/rice-1.png', 'rice - ページ 1')">
             <img src="images/rice-1.png" alt="ページ1" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -617,9 +674,10 @@
           <div class="page-header">
             <span class="page-badge">2 / 2</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/rice-2.png', 'rice - ページ 2')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/rice-2.png', 'rice - ページ 2')">
             <img src="images/rice-2.png" alt="ページ2" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
     </div>
@@ -717,9 +775,10 @@
           <div class="page-header">
             <span class="page-badge">1 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-1.png', 'chouri - ページ 1')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-1.png', 'chouri - ページ 1')">
             <img src="images/chouri-1.png" alt="ページ1" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -783,9 +842,10 @@
           <div class="page-header">
             <span class="page-badge">2 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-2.png', 'chouri - ページ 2')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-2.png', 'chouri - ページ 2')">
             <img src="images/chouri-2.png" alt="ページ2" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -873,9 +933,10 @@
           <div class="page-header">
             <span class="page-badge">3 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-3.png', 'chouri - ページ 3')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-3.png', 'chouri - ページ 3')">
             <img src="images/chouri-3.png" alt="ページ3" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -966,9 +1027,10 @@
           <div class="page-header">
             <span class="page-badge">4 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-4.png', 'chouri - ページ 4')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-4.png', 'chouri - ページ 4')">
             <img src="images/chouri-4.png" alt="ページ4" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1033,9 +1095,10 @@
           <div class="page-header">
             <span class="page-badge">5 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-5.png', 'chouri - ページ 5')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-5.png', 'chouri - ページ 5')">
             <img src="images/chouri-5.png" alt="ページ5" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1120,9 +1183,10 @@
           <div class="page-header">
             <span class="page-badge">6 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-6.png', 'chouri - ページ 6')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-6.png', 'chouri - ページ 6')">
             <img src="images/chouri-6.png" alt="ページ6" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1199,9 +1263,10 @@
           <div class="page-header">
             <span class="page-badge">7 / 7</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri-7.png', 'chouri - ページ 7')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri-7.png', 'chouri - ページ 7')">
             <img src="images/chouri-7.png" alt="ページ7" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
     </div>
@@ -1305,9 +1370,10 @@
           <div class="page-header">
             <span class="page-badge">1 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-01.png', 'chouri_zen - ページ 1')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-01.png', 'chouri_zen - ページ 1')">
             <img src="images/chouri_zen-01.png" alt="ページ1" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1397,9 +1463,10 @@
           <div class="page-header">
             <span class="page-badge">2 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-02.png', 'chouri_zen - ページ 2')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-02.png', 'chouri_zen - ページ 2')">
             <img src="images/chouri_zen-02.png" alt="ページ2" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1493,9 +1560,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">3 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-03.png', 'chouri_zen - ページ 3')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-03.png', 'chouri_zen - ページ 3')">
             <img src="images/chouri_zen-03.png" alt="ページ3" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1530,9 +1598,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">4 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-04.png', 'chouri_zen - ページ 4')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-04.png', 'chouri_zen - ページ 4')">
             <img src="images/chouri_zen-04.png" alt="ページ4" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1624,9 +1693,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">5 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-05.png', 'chouri_zen - ページ 5')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-05.png', 'chouri_zen - ページ 5')">
             <img src="images/chouri_zen-05.png" alt="ページ5" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1713,9 +1783,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">6 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-06.png', 'chouri_zen - ページ 6')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-06.png', 'chouri_zen - ページ 6')">
             <img src="images/chouri_zen-06.png" alt="ページ6" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1804,9 +1875,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">7 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-07.png', 'chouri_zen - ページ 7')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-07.png', 'chouri_zen - ページ 7')">
             <img src="images/chouri_zen-07.png" alt="ページ7" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1870,9 +1942,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">8 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-08.png', 'chouri_zen - ページ 8')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-08.png', 'chouri_zen - ページ 8')">
             <img src="images/chouri_zen-08.png" alt="ページ8" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -1935,9 +2008,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">9 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-09.png', 'chouri_zen - ページ 9')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-09.png', 'chouri_zen - ページ 9')">
             <img src="images/chouri_zen-09.png" alt="ページ9" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2028,9 +2102,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">10 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-10.png', 'chouri_zen - ページ 10')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-10.png', 'chouri_zen - ページ 10')">
             <img src="images/chouri_zen-10.png" alt="ページ10" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2066,9 +2141,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">11 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-11.png', 'chouri_zen - ページ 11')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-11.png', 'chouri_zen - ページ 11')">
             <img src="images/chouri_zen-11.png" alt="ページ11" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2159,9 +2235,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">12 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-12.png', 'chouri_zen - ページ 12')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-12.png', 'chouri_zen - ページ 12')">
             <img src="images/chouri_zen-12.png" alt="ページ12" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2253,9 +2330,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">13 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-13.png', 'chouri_zen - ページ 13')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-13.png', 'chouri_zen - ページ 13')">
             <img src="images/chouri_zen-13.png" alt="ページ13" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2339,9 +2417,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">14 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-14.png', 'chouri_zen - ページ 14')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-14.png', 'chouri_zen - ページ 14')">
             <img src="images/chouri_zen-14.png" alt="ページ14" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2403,9 +2482,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">15 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-15.png', 'chouri_zen - ページ 15')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-15.png', 'chouri_zen - ページ 15')">
             <img src="images/chouri_zen-15.png" alt="ページ15" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2494,9 +2574,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">16 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-16.png', 'chouri_zen - ページ 16')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-16.png', 'chouri_zen - ページ 16')">
             <img src="images/chouri_zen-16.png" alt="ページ16" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2589,9 +2670,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">17 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-17.png', 'chouri_zen - ページ 17')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-17.png', 'chouri_zen - ページ 17')">
             <img src="images/chouri_zen-17.png" alt="ページ17" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2678,9 +2760,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">18 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-18.png', 'chouri_zen - ページ 18')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-18.png', 'chouri_zen - ページ 18')">
             <img src="images/chouri_zen-18.png" alt="ページ18" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2753,9 +2836,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">19 / 19</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/chouri_zen-19.png', 'chouri_zen - ページ 19')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/chouri_zen-19.png', 'chouri_zen - ページ 19')">
             <img src="images/chouri_zen-19.png" alt="ページ19" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
     </div>
@@ -2853,9 +2937,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">1 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_01.png', 'hansoku_cur - ページ 1')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_01.png', 'hansoku_cur - ページ 1')">
             <img src="images/hansoku_cur_01.png" alt="ページ1" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -2991,9 +3076,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">2 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_02.png', 'hansoku_cur - ページ 2')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_02.png', 'hansoku_cur - ページ 2')">
             <img src="images/hansoku_cur_02.png" alt="ページ2" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3037,9 +3123,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">3 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_03.png', 'hansoku_cur - ページ 3')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_03.png', 'hansoku_cur - ページ 3')">
             <img src="images/hansoku_cur_03.png" alt="ページ3" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3120,9 +3207,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">4 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_04.png', 'hansoku_cur - ページ 4')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_04.png', 'hansoku_cur - ページ 4')">
             <img src="images/hansoku_cur_04.png" alt="ページ4" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3200,9 +3288,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">5 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_05.png', 'hansoku_cur - ページ 5')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_05.png', 'hansoku_cur - ページ 5')">
             <img src="images/hansoku_cur_05.png" alt="ページ5" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3252,9 +3341,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">6 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_06.png', 'hansoku_cur - ページ 6')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_06.png', 'hansoku_cur - ページ 6')">
             <img src="images/hansoku_cur_06.png" alt="ページ6" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3316,9 +3406,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">7 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_07.png', 'hansoku_cur - ページ 7')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_07.png', 'hansoku_cur - ページ 7')">
             <img src="images/hansoku_cur_07.png" alt="ページ7" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3343,9 +3434,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">8 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_08.png', 'hansoku_cur - ページ 8')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_08.png', 'hansoku_cur - ページ 8')">
             <img src="images/hansoku_cur_08.png" alt="ページ8" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3397,9 +3489,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">9 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_09.png', 'hansoku_cur - ページ 9')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_09.png', 'hansoku_cur - ページ 9')">
             <img src="images/hansoku_cur_09.png" alt="ページ9" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3430,9 +3523,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">10 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_10.png', 'hansoku_cur - ページ 10')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_10.png', 'hansoku_cur - ページ 10')">
             <img src="images/hansoku_cur_10.png" alt="ページ10" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3502,9 +3596,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">11 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_11.png', 'hansoku_cur - ページ 11')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_11.png', 'hansoku_cur - ページ 11')">
             <img src="images/hansoku_cur_11.png" alt="ページ11" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3550,9 +3645,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">12 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_12.png', 'hansoku_cur - ページ 12')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_12.png', 'hansoku_cur - ページ 12')">
             <img src="images/hansoku_cur_12.png" alt="ページ12" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3598,9 +3694,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">13 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_13.png', 'hansoku_cur - ページ 13')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_13.png', 'hansoku_cur - ページ 13')">
             <img src="images/hansoku_cur_13.png" alt="ページ13" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3639,9 +3736,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">14 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_14.png', 'hansoku_cur - ページ 14')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_14.png', 'hansoku_cur - ページ 14')">
             <img src="images/hansoku_cur_14.png" alt="ページ14" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3666,9 +3764,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">15 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_15.png', 'hansoku_cur - ページ 15')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_15.png', 'hansoku_cur - ページ 15')">
             <img src="images/hansoku_cur_15.png" alt="ページ15" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3712,9 +3811,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">16 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_16.png', 'hansoku_cur - ページ 16')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_16.png', 'hansoku_cur - ページ 16')">
             <img src="images/hansoku_cur_16.png" alt="ページ16" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3759,9 +3859,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">17 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_17.png', 'hansoku_cur - ページ 17')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_17.png', 'hansoku_cur - ページ 17')">
             <img src="images/hansoku_cur_17.png" alt="ページ17" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3806,9 +3907,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">18 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_18.png', 'hansoku_cur - ページ 18')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_18.png', 'hansoku_cur - ページ 18')">
             <img src="images/hansoku_cur_18.png" alt="ページ18" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3851,9 +3953,10 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">19 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_19.png', 'hansoku_cur - ページ 19')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_19.png', 'hansoku_cur - ページ 19')">
             <img src="images/hansoku_cur_19.png" alt="ページ19" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
 
@@ -3897,15 +4000,23 @@ Pしょうが焼きのたれ24 36cc×2杯
           <div class="page-header">
             <span class="page-badge">20 / 20</span>
           </div>
-          <div class="page-img-wrap" onclick="openLightbox('images/hansoku_cur_20.png', 'hansoku_cur - ページ 20')">
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/hansoku_cur_20.png', 'hansoku_cur - ページ 20')">
             <img src="images/hansoku_cur_20.png" alt="ページ20" loading="lazy" class="page-img" />
             <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
           </div>
         </div>
     </div>
     
   </section>
 </main>
+
+<div id="editBar">
+  <span class="edit-info">✏️ 編集モード：画像をタップで販売終了スタンプ追加／スタンプをタップで削除</span>
+  <button onclick="copyStampsJson()">📋 JSONコピー</button>
+  <button class="secondary" onclick="clearCurrentPageStamps()">このページクリア</button>
+  <button class="danger" onclick="exitEditMode()">終了</button>
+</div>
 
 <div id="lightbox" onclick="closeLightboxOutside(event)">
   <div id="lbToolbar">
@@ -4222,6 +4333,107 @@ document.addEventListener('keydown', e => {
       if (e.key === 'ArrowRight') swipeTo(sc.id, +1);
     }
   }
+});
+
+// ===== 販売終了スタンプ =====
+var STAMPS_DATA = {};
+var EDIT_MODE = new URLSearchParams(location.search).get('edit') === '1';
+
+function handleImgClick(ev, wrap, imgSrc, title) {
+  if (!EDIT_MODE) { openLightbox(imgSrc, title); return; }
+  // 編集モード: スタンプ追加
+  var block = wrap.closest('.page-block');
+  var sid = block.dataset.section;
+  if (sid && sid.indexOf('hansoku') === 0) { openLightbox(imgSrc, title); return; }
+  var page = block.dataset.page;
+  var rect = wrap.getBoundingClientRect();
+  var x = ((ev.clientX - rect.left) / rect.width) * 100;
+  var y = ((ev.clientY - rect.top) / rect.height) * 100;
+  if (!STAMPS_DATA[sid]) STAMPS_DATA[sid] = {};
+  if (!STAMPS_DATA[sid][page]) STAMPS_DATA[sid][page] = [];
+  STAMPS_DATA[sid][page].push({ x: +x.toFixed(2), y: +y.toFixed(2) });
+  renderStamps();
+}
+
+function renderStamps() {
+  document.querySelectorAll('.page-block').forEach(function(block) {
+    var sid = block.dataset.section;
+    var page = block.dataset.page;
+    var layer = block.querySelector('.stamp-layer');
+    if (!layer) return;
+    layer.innerHTML = '';
+    var stamps = (STAMPS_DATA[sid] && STAMPS_DATA[sid][page]) || [];
+    stamps.forEach(function(s, idx) {
+      var el = document.createElement('div');
+      el.className = 'stamp';
+      el.textContent = '販売終了';
+      el.style.left = s.x + '%';
+      el.style.top = s.y + '%';
+      el.addEventListener('click', function(e) {
+        if (!EDIT_MODE) return;
+        e.stopPropagation();
+        STAMPS_DATA[sid][page].splice(idx, 1);
+        if (STAMPS_DATA[sid][page].length === 0) delete STAMPS_DATA[sid][page];
+        if (Object.keys(STAMPS_DATA[sid]).length === 0) delete STAMPS_DATA[sid];
+        renderStamps();
+      });
+      layer.appendChild(el);
+    });
+  });
+}
+
+function copyStampsJson() {
+  var text = JSON.stringify(STAMPS_DATA, null, 2);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      alert('📋 JSONをコピーしました。stamps.json に貼り付けてコミットしてください。');
+    }).catch(function() { showJsonFallback(text); });
+  } else {
+    showJsonFallback(text);
+  }
+}
+
+function showJsonFallback(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:10%;left:5%;width:90%;height:60%;z-index:9999;font-size:12px;padding:10px;';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); alert('コピーしました'); } catch(e) { alert('手動でコピーしてください'); }
+  setTimeout(function() { ta.remove(); }, 100);
+}
+
+function clearCurrentPageStamps() {
+  var activeSection = document.querySelector('.section[style*="display:block"], .section[style*="display: block"]');
+  if (!activeSection) return;
+  var visibleBlock = activeSection.querySelector('.page-block:not(.swipe-hidden)');
+  if (!visibleBlock) return;
+  var sid = visibleBlock.dataset.section;
+  var page = visibleBlock.dataset.page;
+  if (STAMPS_DATA[sid] && STAMPS_DATA[sid][page]) {
+    if (!confirm('このページの販売終了スタンプをすべて削除しますか？')) return;
+    delete STAMPS_DATA[sid][page];
+    if (Object.keys(STAMPS_DATA[sid]).length === 0) delete STAMPS_DATA[sid];
+    renderStamps();
+  }
+}
+
+function exitEditMode() {
+  var url = new URL(location.href);
+  url.searchParams.delete('edit');
+  location.href = url.toString();
+}
+
+function loadStamps() {
+  fetch('stamps.json', { cache: 'no-store' })
+    .then(function(r) { return r.ok ? r.json() : {}; })
+    .then(function(d) { STAMPS_DATA = d || {}; renderStamps(); })
+    .catch(function() { renderStamps(); });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (EDIT_MODE) document.body.classList.add('edit-mode');
+  loadStamps();
 });
 
 
