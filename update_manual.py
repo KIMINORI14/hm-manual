@@ -212,8 +212,8 @@ def build_hansoku_section(config, changed_pages=None, embed_images=False):
     return f'''
   <section id="section-hansoku" class="section" style="display:none">
     <div class="section-header">
-      <h2>📣 販促計画書（関西・淡路含む）</h2>
-      <p class="section-desc">販促カレンダー・商品案内・マニュアル変更（関西エリア）</p>
+      <h2>📣 販促計画書（関西エリア）</h2>
+      <p class="section-desc">販促カレンダー・商品案内・マニュアル変更（大阪・京都・兵庫・淡路）</p>
     </div>
     <div class="month-tabs">
       <button class="month-tab active" onclick="switchMonth(\'cur\')" id="month-tab-cur">📅 当月（{cur_month}）</button>
@@ -1340,6 +1340,12 @@ def update_hansoku(pdf_path, month_label, config):
     print(f"  📦 前月（{prev_month}）: {prev_count}ページ を保存")
     # 新しい当月画像を生成
     pdf_to_images(pdf_path, "hansoku_cur", 1, HANSOKU_PAGES)
+    # pdftoppm はダッシュ区切り(hansoku_cur-01.png)で出力するため、アンダースコア区切り(hansoku_cur_01.png)にリネーム
+    for f in os.listdir(IMAGES_DIR):
+        m = re.match(r'^hansoku_cur-(\d+)\.png$', f)
+        if m:
+            new_name = f"hansoku_cur_{int(m.group(1)):02d}.png"
+            os.rename(os.path.join(IMAGES_DIR, f), os.path.join(IMAGES_DIR, new_name))
     with open(cur_txt, "w", encoding="utf-8") as f:
         f.write("\f".join(texts))
     cur_count = len([f for f in os.listdir(IMAGES_DIR) if f.startswith("hansoku_cur_") and not f.endswith("_text.txt")])
