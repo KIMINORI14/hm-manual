@@ -257,6 +257,35 @@
     #editBar .mode-btn.active { background: #f39c12; color: white; }
     #editBar .mode-btn:hover:not(.active) { background: rgba(255,255,255,0.15); color: white; }
 
+    /* ===== マニュアル一覧（インデックス） ===== */
+    .other-index { display: flex; flex-direction: column; gap: 8px; }
+    .manual-card {
+      display: flex; align-items: center; gap: 12px;
+      background: white; border: none; border-radius: 10px;
+      padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      cursor: pointer; text-align: left; width: 100%;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }
+    .manual-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+    .manual-card:active { transform: scale(0.99); }
+    .manual-card-icon { font-size: 26px; flex-shrink: 0; width: 34px; text-align: center; }
+    .manual-card-body { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .manual-card-title { font-size: 15px; font-weight: 700; color: #333; line-height: 1.3; }
+    .manual-card-pages { font-size: 12px; color: #999; }
+    .manual-card-arrow { font-size: 22px; color: #ccc; flex-shrink: 0; }
+    .manual-back {
+      background: #eee; border: none; color: #555;
+      padding: 8px 14px; border-radius: 16px; font-size: 13px;
+      cursor: pointer; font-weight: 600; margin-bottom: 12px;
+    }
+    .manual-back:hover { background: #ddd; }
+    .manual-view-header {
+      background: white; border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .manual-view-header h3 { font-size: 16px; color: #c0392b; margin-bottom: 4px; }
+    .manual-view-desc { font-size: 12px; color: #666; }
+
     /* ===== ロック画面 ===== */
     #lockScreen {
       position: fixed; inset: 0; z-index: 9999;
@@ -334,6 +363,7 @@
     <button class="tab-btn" onclick="showSection('chouri')" id="tab-chouri">🍳 <span class="tab-label">調理(季節)</span><span class="tab-badge" id="badge-chouri"></span></button>
     <button class="tab-btn" onclick="showSection('chouri_zen')" id="tab-chouri_zen">🍳 <span class="tab-label">調理(全国)</span><span class="tab-badge" id="badge-chouri_zen"></span></button>
     <button class="tab-btn" onclick="showSection('hansoku')" id="tab-hansoku">📣 <span class="tab-label">販促計画</span><span class="tab-badge" id="badge-hansoku"></span></button>
+    <button class="tab-btn" onclick="showSection('other')" id="tab-other">📚 <span class="tab-label">マニュアル一覧</span><span class="tab-badge" id="badge-other"></span></button>
   </div>
 </header>
 
@@ -5181,6 +5211,657 @@ Pしょうが焼きのたれ24 36cc×2杯
         </div>
         </div>
   </section>
+
+
+  <section id="section-other" class="section" style="display:none">
+    <div class="section-header">
+      <h2>📚 マニュアル一覧</h2>
+      <p class="section-desc">各種オペレーションマニュアル（カードをタップで開く）</p>
+    </div>
+    <div id="other-index" class="other-index">
+      
+        <button class="manual-card" onclick="openManual('yasai')">
+          <span class="manual-card-icon">🥬</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">野菜【洗浄・殺菌・カット】</span>
+            <span class="manual-card-pages">2ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('nikuyasai')">
+          <span class="manual-card-icon">🥘</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">肉野菜炒め（時短・事前調理）</span>
+            <span class="manual-card-pages">3ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('renji_pasta')">
+          <span class="manual-card-icon">🍝</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">業務用レンジ活用（ナポリタン/焼きスパ）</span>
+            <span class="manual-card-pages">2ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('ih_suihan')">
+          <span class="manual-card-icon">🍚</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">IH炊飯ジャー用炊飯</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('mochikoshi')">
+          <span class="manual-card-icon">🍙</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">持ち越しライス（業務用レンジ）</span>
+            <span class="manual-card-pages">6ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('renji_time')">
+          <span class="manual-card-icon">⏱</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">電子レンジ調理時間一覧（6月）</span>
+            <span class="manual-card-pages">2ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('yakizakana')">
+          <span class="manual-card-icon">🐟</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">焼き魚調理</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('medama')">
+          <span class="manual-card-icon">🍳</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">目玉焼き焼成</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('hamburg')">
+          <span class="manual-card-icon">🍛</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">ハンバーグ・カレー保管</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('tenpura')">
+          <span class="manual-card-icon">🍤</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">天ぷら用水溶き粉作成</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('karaage_kaitou')">
+          <span class="manual-card-icon">🍗</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">から揚解凍（秋冬/春夏）</span>
+            <span class="manual-card-pages">2ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('tsuika_kaitou')">
+          <span class="manual-card-icon">❄️</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">追加解凍マニュアル</span>
+            <span class="manual-card-pages">2ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('boil')">
+          <span class="manual-card-icon">♨️</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">ボイルルール</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('haccp')">
+          <span class="manual-card-icon">🧊</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">HACCP冷却運用</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('dontare')">
+          <span class="manual-card-icon">🥢</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">丼のたれ希釈</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('okazu')">
+          <span class="manual-card-icon">🍱</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">おかずセット</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+        <button class="manual-card" onclick="openManual('bulk')">
+          <span class="manual-card-icon">📦</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">大量注文 提供可能一覧</span>
+            <span class="manual-card-pages">1ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>
+    </div>
+    <div id="other-views">
+      
+      <div class="manual-view" id="manual-view-yasai" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🥬 野菜【洗浄・殺菌・カット】</h3>
+          <p class="manual-view-desc">キャベツ・ネギ・白菜の洗浄/殺菌/カット</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_yasai">
+          
+        <div class="page-block" data-section="other_yasai" data-page="1"
+             data-searchtext="野菜【洗浄・殺菌・カット】 野菜 洗浄 殺菌 カット キャベツ 千切り 角切り 大ネギ 深ネギ 小ネギ 青ネギ 白菜 ざく切り 斜め切り 小口切り スライサー">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_yasai-1.png', 'other_yasai - ページ 1')">
+            <img src="images/other_yasai-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_yasai" data-page="2"
+             data-searchtext="野菜【洗浄・殺菌・カット】 野菜 洗浄 殺菌 カット キャベツ 千切り 角切り 大ネギ 深ネギ 小ネギ 青ネギ 白菜 ざく切り 斜め切り 小口切り スライサー">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_yasai-2.png', 'other_yasai - ページ 2')">
+            <img src="images/other_yasai-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-nikuyasai" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🥘 肉野菜炒め（時短・事前調理）</h3>
+          <p class="manual-view-desc">ミックス野菜の事前調理・時短・調理手順</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_nikuyasai">
+          
+        <div class="page-block" data-section="other_nikuyasai" data-page="1"
+             data-searchtext="肉野菜炒め（時短・事前調理） 肉野菜炒め ミックス野菜 もやし 枝豆 豚バラスライス 中華鍋 事前調理 再調理 時短 レンジアップ ジップロック">
+          <div class="page-header">
+            <span class="page-badge">1 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_nikuyasai-1.png', 'other_nikuyasai - ページ 1')">
+            <img src="images/other_nikuyasai-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_nikuyasai" data-page="2"
+             data-searchtext="肉野菜炒め（時短・事前調理） 肉野菜炒め ミックス野菜 もやし 枝豆 豚バラスライス 中華鍋 事前調理 再調理 時短 レンジアップ ジップロック">
+          <div class="page-header">
+            <span class="page-badge">2 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_nikuyasai-2.png', 'other_nikuyasai - ページ 2')">
+            <img src="images/other_nikuyasai-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_nikuyasai" data-page="3"
+             data-searchtext="肉野菜炒め（時短・事前調理） 肉野菜炒め ミックス野菜 もやし 枝豆 豚バラスライス 中華鍋 事前調理 再調理 時短 レンジアップ ジップロック">
+          <div class="page-header">
+            <span class="page-badge">3 / 3</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_nikuyasai-3.png', 'other_nikuyasai - ページ 3')">
+            <img src="images/other_nikuyasai-3.png" alt="ページ3" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-renji_pasta" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍝 業務用レンジ活用（ナポリタン/焼きスパ）</h3>
+          <p class="manual-view-desc">スパゲティ・ナポリタン・ソース焼きスパのレンジ調理</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_renji_pasta">
+          
+        <div class="page-block" data-section="other_renji_pasta" data-page="1"
+             data-searchtext="業務用レンジ活用（ナポリタン/焼きスパ） スパゲティ ナポリタン ソース焼きスパ 焼きスパ レンジ ホームパック 玉葱 油 スパガード 業務用レンジ">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_renji_pasta-1.png', 'other_renji_pasta - ページ 1')">
+            <img src="images/other_renji_pasta-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_renji_pasta" data-page="2"
+             data-searchtext="業務用レンジ活用（ナポリタン/焼きスパ） スパゲティ ナポリタン ソース焼きスパ 焼きスパ レンジ ホームパック 玉葱 油 スパガード 業務用レンジ">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_renji_pasta-2.png', 'other_renji_pasta - ページ 2')">
+            <img src="images/other_renji_pasta-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-ih_suihan" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍚 IH炊飯ジャー用炊飯</h3>
+          <p class="manual-view-desc">漬け込み・炊飯手順（金芽米）</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_ih_suihan">
+          
+        <div class="page-block" data-section="other_ih_suihan" data-page="1"
+             data-searchtext="IH炊飯ジャー用炊飯 IH炊飯ジャー 炊飯 漬け込み 金芽米 計量カップ カップ 水量目盛り 白米 浄水器">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_ih_suihan-1.png', 'other_ih_suihan - ページ 1')">
+            <img src="images/other_ih_suihan-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-mochikoshi" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍙 持ち越しライス（業務用レンジ）</h3>
+          <p class="manual-view-desc">ライス持ち越しマニュアル（業務用電子レンジ専用）</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_mochikoshi">
+          
+        <div class="page-block" data-section="other_mochikoshi" data-page="1"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">1 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-1.png', 'other_mochikoshi - ページ 1')">
+            <img src="images/other_mochikoshi-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_mochikoshi" data-page="2"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">2 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-2.png', 'other_mochikoshi - ページ 2')">
+            <img src="images/other_mochikoshi-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_mochikoshi" data-page="3"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">3 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-3.png', 'other_mochikoshi - ページ 3')">
+            <img src="images/other_mochikoshi-3.png" alt="ページ3" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_mochikoshi" data-page="4"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">4 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-4.png', 'other_mochikoshi - ページ 4')">
+            <img src="images/other_mochikoshi-4.png" alt="ページ4" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_mochikoshi" data-page="5"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">5 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-5.png', 'other_mochikoshi - ページ 5')">
+            <img src="images/other_mochikoshi-5.png" alt="ページ5" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_mochikoshi" data-page="6"
+             data-searchtext="持ち越しライス（業務用レンジ） 持ち越しライス 持越し ライス 業務用電子レンジ 金芽米 ジャンボキーパー ライスロボ 提供方法 ガーリックライス">
+          <div class="page-header">
+            <span class="page-badge">6 / 6</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_mochikoshi-6.png', 'other_mochikoshi - ページ 6')">
+            <img src="images/other_mochikoshi-6.png" alt="ページ6" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-renji_time" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>⏱ 電子レンジ調理時間一覧（6月）</h3>
+          <p class="manual-view-desc">業務用電子レンジの食材別調理時間表</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_renji_time">
+          
+        <div class="page-block" data-section="other_renji_time" data-page="1"
+             data-searchtext="電子レンジ調理時間一覧（6月） 電子レンジ 調理時間 一覧 仕込み 解凍 ライス チキン南蛮 ブロッコリー きくらげ うどん だし巻 業務用">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_renji_time-1.png', 'other_renji_time - ページ 1')">
+            <img src="images/other_renji_time-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_renji_time" data-page="2"
+             data-searchtext="電子レンジ調理時間一覧（6月） 電子レンジ 調理時間 一覧 仕込み 解凍 ライス チキン南蛮 ブロッコリー きくらげ うどん だし巻 業務用">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_renji_time-2.png', 'other_renji_time - ページ 2')">
+            <img src="images/other_renji_time-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-yakizakana" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🐟 焼き魚調理</h3>
+          <p class="manual-view-desc">サバ切身・銀鮭・袋入り大焼売・目玉焼きの調理時間</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_yakizakana">
+          
+        <div class="page-block" data-section="other_yakizakana" data-page="1"
+             data-searchtext="焼き魚調理 焼き魚 サバ切身 銀鮭 銀鮭切身 袋入り大焼売 目玉焼き 焼成 調理時間 コンベック クッキングシート">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_yakizakana-1.png', 'other_yakizakana - ページ 1')">
+            <img src="images/other_yakizakana-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-medama" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍳 目玉焼き焼成</h3>
+          <p class="manual-view-desc">鶏卵の目玉焼き焼成手順</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_medama">
+          
+        <div class="page-block" data-section="other_medama" data-page="1"
+             data-searchtext="目玉焼き焼成 目玉焼き 焼成 鶏卵 水を2cc プレート コンベック 黄身 ソフト仕上げ">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_medama-1.png', 'other_medama - ページ 1')">
+            <img src="images/other_medama-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-hamburg" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍛 ハンバーグ・カレー保管</h3>
+          <p class="manual-view-desc">カレー・ハンバーグ・デミソースのボイル/保管</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_hamburg">
+          
+        <div class="page-block" data-section="other_hamburg" data-page="1"
+             data-searchtext="ハンバーグ・カレー保管 ハンバーグ カレー デミソース ボイル 冷却 保管 湯煎 再ボイル 持ち越し">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_hamburg-1.png', 'other_hamburg - ページ 1')">
+            <img src="images/other_hamburg-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-tenpura" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍤 天ぷら用水溶き粉作成</h3>
+          <p class="manual-view-desc">天ぷら粉の希釈・保管</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_tenpura">
+          
+        <div class="page-block" data-section="other_tenpura" data-page="1"
+             data-searchtext="天ぷら用水溶き粉作成 天ぷら 水溶き粉 天ぷら粉 希釈 保管期限 冷蔵 ボール">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_tenpura-1.png', 'other_tenpura - ページ 1')">
+            <img src="images/other_tenpura-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-karaage_kaitou" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍗 から揚解凍（秋冬/春夏）</h3>
+          <p class="manual-view-desc">から揚の緊急解凍マニュアル</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_karaage_kaitou">
+          
+        <div class="page-block" data-section="other_karaage_kaitou" data-page="1"
+             data-searchtext="から揚解凍（秋冬/春夏） から揚 唐揚げ 解凍 緊急解凍 秋冬 春夏 ジップ ダストペール タイマー シンク">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_karaage_kaitou-1.png', 'other_karaage_kaitou - ページ 1')">
+            <img src="images/other_karaage_kaitou-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_karaage_kaitou" data-page="2"
+             data-searchtext="から揚解凍（秋冬/春夏） から揚 唐揚げ 解凍 緊急解凍 秋冬 春夏 ジップ ダストペール タイマー シンク">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_karaage_kaitou-2.png', 'other_karaage_kaitou - ページ 2')">
+            <img src="images/other_karaage_kaitou-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-tsuika_kaitou" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>❄️ 追加解凍マニュアル</h3>
+          <p class="manual-view-desc">だし巻玉子・鶏もも肉・もち麦等の追加解凍</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_tsuika_kaitou">
+          
+        <div class="page-block" data-section="other_tsuika_kaitou" data-page="1"
+             data-searchtext="追加解凍マニュアル 追加解凍 だし巻玉子 鶏もも肉 もち麦 冷凍枝豆 うどん レンジ 解凍 ホームパック">
+          <div class="page-header">
+            <span class="page-badge">1 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_tsuika_kaitou-1.png', 'other_tsuika_kaitou - ページ 1')">
+            <img src="images/other_tsuika_kaitou-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+
+        <div class="page-block" data-section="other_tsuika_kaitou" data-page="2"
+             data-searchtext="追加解凍マニュアル 追加解凍 だし巻玉子 鶏もも肉 もち麦 冷凍枝豆 うどん レンジ 解凍 ホームパック">
+          <div class="page-header">
+            <span class="page-badge">2 / 2</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_tsuika_kaitou-2.png', 'other_tsuika_kaitou - ページ 2')">
+            <img src="images/other_tsuika_kaitou-2.png" alt="ページ2" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-boil" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>♨️ ボイルルール</h3>
+          <p class="manual-view-desc">ボイル運用ルール</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_boil">
+          
+        <div class="page-block" data-section="other_boil" data-page="1"
+             data-searchtext="ボイルルール ボイル ルール 湯煎 保管期限 商材">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_boil-1.png', 'other_boil - ページ 1')">
+            <img src="images/other_boil-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-haccp" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🧊 HACCP冷却運用</h3>
+          <p class="manual-view-desc">調理加熱商材の冷却運用一覧</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_haccp">
+          
+        <div class="page-block" data-section="other_haccp" data-page="1"
+             data-searchtext="HACCP冷却運用 HACCP 冷却 運用 肉野菜炒め 目玉焼き サバ シャケ ハンバーグ 豚汁 ホームパック シールウェア 21度">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_haccp-1.png', 'other_haccp - ページ 1')">
+            <img src="images/other_haccp-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-dontare" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🥢 丼のたれ希釈</h3>
+          <p class="manual-view-desc">丼たれの希釈・保管ルール</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_dontare">
+          
+        <div class="page-block" data-section="other_dontare" data-page="1"
+             data-searchtext="丼のたれ希釈 丼のたれ 丼たれ 希釈 保管期限 常温 冷蔵 注ぎ足し">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_dontare-1.png', 'other_dontare - ページ 1')">
+            <img src="images/other_dontare-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-okazu" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>🍱 おかずセット</h3>
+          <p class="manual-view-desc">おかずセットの盛付・保管</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_okazu">
+          
+        <div class="page-block" data-section="other_okazu" data-page="1"
+             data-searchtext="おかずセット おかずセット ポテトサラダ スパゲティ 塩こしょう 盛付 ごま油 小袋">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_okazu-1.png', 'other_okazu - ページ 1')">
+            <img src="images/other_okazu-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="manual-view" id="manual-view-bulk" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>📦 大量注文 提供可能一覧</h3>
+          <p class="manual-view-desc">レギュラー商品の大量注文可否一覧</p>
+        </div>
+        <div class="swipe-container" id="swipe-other_bulk">
+          
+        <div class="page-block" data-section="other_bulk" data-page="1"
+             data-searchtext="大量注文 提供可能一覧 大量注文 提供可能 一覧 弁当 のり弁 から揚 ハンバーグ おにぎり サイド 単品惣菜">
+          <div class="page-header">
+            <span class="page-badge">1 / 1</span>
+          </div>
+          <div class="page-img-wrap" onclick="handleImgClick(event, this, 'images/other_bulk-1.png', 'other_bulk - ページ 1')">
+            <img src="images/other_bulk-1.png" alt="ページ1" loading="lazy" class="page-img" />
+            <div class="zoom-hint">🔍 タップで拡大</div>
+            <div class="stamp-layer"></div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div id="editBar">
@@ -5328,6 +6009,8 @@ function showSection(id) {
   document.getElementById('tab-' + id).classList.add('active');
   const q = document.getElementById('searchInput').value.trim();
   if (q) highlightSection(id, q);
+  // マニュアル一覧タブは通常クリック時は一覧（インデックス）を表示
+  if (id === 'other' && !window._otherKeepView) backToManualIndex();
   // 表示後にページ番号ボタンのスクロール位置を更新
   setTimeout(function() {
     var section = document.getElementById('section-' + id);
@@ -5337,6 +6020,27 @@ function showSection(id) {
       });
     }
   }, 60);
+}
+
+// ===== マニュアル一覧（インデックス⇄個別表示） =====
+var OTHER_TITLES = {"other_yasai": "🥬 野菜【洗浄・殺菌・カット】", "other_nikuyasai": "🥘 肉野菜炒め（時短・事前調理）", "other_renji_pasta": "🍝 業務用レンジ活用（ナポリタン/焼きスパ）", "other_ih_suihan": "🍚 IH炊飯ジャー用炊飯", "other_mochikoshi": "🍙 持ち越しライス（業務用レンジ）", "other_renji_time": "⏱ 電子レンジ調理時間一覧（6月）", "other_yakizakana": "🐟 焼き魚調理", "other_medama": "🍳 目玉焼き焼成", "other_hamburg": "🍛 ハンバーグ・カレー保管", "other_tenpura": "🍤 天ぷら用水溶き粉作成", "other_karaage_kaitou": "🍗 から揚解凍（秋冬/春夏）", "other_tsuika_kaitou": "❄️ 追加解凍マニュアル", "other_boil": "♨️ ボイルルール", "other_haccp": "🧊 HACCP冷却運用", "other_dontare": "🥢 丼のたれ希釈", "other_okazu": "🍱 おかずセット", "other_bulk": "📦 大量注文 提供可能一覧"};
+
+function openManual(mid) {
+  var index = document.getElementById('other-index');
+  if (index) index.style.display = 'none';
+  document.querySelectorAll('.manual-view').forEach(function(v) { v.style.display = 'none'; });
+  var view = document.getElementById('manual-view-' + mid);
+  if (view) view.style.display = 'block';
+  var cid = 'swipe-other_' + mid;
+  setTimeout(function() { if (swipeState[cid]) updateSwipeButtons(cid); }, 60);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToManualIndex() {
+  document.querySelectorAll('.manual-view').forEach(function(v) { v.style.display = 'none'; });
+  var index = document.getElementById('other-index');
+  if (index) index.style.display = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ===== 販促計画書 月切替 =====
@@ -5375,13 +6079,13 @@ function doSearch() {
     if (hasMatch) {
       const sid = block.dataset.section;
       results.push({ sectionId: sid, page: parseInt(block.dataset.page), el: block });
-      const mainSid = sid.startsWith('hansoku') ? 'hansoku' : sid;
+      const mainSid = sid.startsWith('hansoku') ? 'hansoku' : (sid.startsWith('other_') ? 'other' : sid);
       sectionCounts[mainSid] = (sectionCounts[mainSid] || 0) + 1;
     }
   });
 
   // タブにバッジ表示
-  ['fuzokuhin', 'rice', 'chouri', 'chouri_zen', 'hansoku'].forEach(sid => {
+  ['fuzokuhin', 'rice', 'chouri', 'chouri_zen', 'hansoku', 'other'].forEach(sid => {
     const badge = document.getElementById('badge-' + sid);
     if (badge) {
       const count = sectionCounts[sid] || 0;
@@ -5398,45 +6102,53 @@ function doSearch() {
   banner.style.display = 'block';
 
   if (results.length > 0) {
-    const sectionTitles = {
+    const sectionTitles = Object.assign({
       fuzokuhin: '付属品', rice: 'ライス盛付', chouri: '調理(季節)', chouri_zen: '調理(全国)',
       hansoku_cur: '販促(当月)', hansoku_prev: '販促(前月)'
-    };
+    }, OTHER_TITLES);
     const groups = {};
     results.forEach(r => {
       if (!groups[r.sectionId]) groups[r.sectionId] = [];
       groups[r.sectionId].push(r);
     });
+
+    // 検索結果から該当ページへ遷移する共通処理
+    function gotoResult(sid, r) {
+      if (sid.startsWith('other_')) {
+        var mid = sid.slice('other_'.length);
+        window._otherKeepView = true;
+        showSection('other');
+        window._otherKeepView = false;
+        openManual(mid);
+        var ocid = 'swipe-' + sid;
+        if (swipeState[ocid]) swipeGoTo(ocid, r.page - 1);
+        setTimeout(() => r.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+        return;
+      }
+      const mainSection = sid.startsWith('hansoku') ? 'hansoku' : sid;
+      showSection(mainSection);
+      if (sid === 'hansoku_prev') switchMonth('prev');
+      else if (sid === 'hansoku_cur') switchMonth('cur');
+      const cid = sid.startsWith('hansoku') ? sid.replace('_', '-') + '-content' : 'swipe-' + mainSection;
+      const pageIdx = r.page - 1;
+      if (swipeState[cid]) swipeGoTo(cid, pageIdx);
+      else if (swipeState['swipe-' + mainSection]) swipeGoTo('swipe-' + mainSection, pageIdx);
+      setTimeout(() => r.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+    }
+
     Object.entries(groups).forEach(([sid, rs]) => {
       rs.forEach(r => {
         const btn = document.createElement('button');
         btn.className = 'result-chip';
         btn.textContent = (sectionTitles[sid] || sid) + ' p.' + r.page;
-        btn.onclick = () => {
-          const mainSection = sid.startsWith('hansoku') ? 'hansoku' : sid;
-          showSection(mainSection);
-          if (sid === 'hansoku_prev') switchMonth('prev');
-          else if (sid === 'hansoku_cur') switchMonth('cur');
-          // スワイプで該当ページに移動
-          const cid = sid.startsWith('hansoku') ? sid.replace('hansoku', 'hansoku') + '-content' : 'swipe-' + mainSection;
-          const pageIdx = r.page - 1;
-          if (swipeState[cid]) swipeGoTo(cid, pageIdx);
-          else if (swipeState['swipe-' + mainSection]) swipeGoTo('swipe-' + mainSection, pageIdx);
-          setTimeout(() => r.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
-        };
+        btn.onclick = () => gotoResult(sid, r);
         nav.appendChild(btn);
       });
     });
 
     // 最初の結果のセクションに遷移
     const firstResult = results[0];
-    const mainSection = firstResult.sectionId.startsWith('hansoku') ? 'hansoku' : firstResult.sectionId;
-    showSection(mainSection);
-    if (firstResult.sectionId === 'hansoku_prev') switchMonth('prev');
-    // スワイプページ移動
-    const firstCid = 'swipe-' + mainSection;
-    if (swipeState[firstCid]) swipeGoTo(firstCid, firstResult.page - 1);
-    setTimeout(() => firstResult.el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    gotoResult(firstResult.sectionId, firstResult);
   } else {
     nav.innerHTML = '<span style="font-size:12px;color:#888;">見つかりませんでした</span>';
   }
@@ -5444,8 +6156,8 @@ function doSearch() {
 
 function highlightSection(sectionId, q) {
   const lower = q.toLowerCase();
-  const selector = sectionId === 'hansoku'
-    ? '.page-block[data-section^="hansoku"]'
+  const selector = (sectionId === 'hansoku' || sectionId === 'other')
+    ? `.page-block[data-section^="${sectionId}"]`
     : `.page-block[data-section="${sectionId}"]`;
   document.querySelectorAll(selector).forEach(block => {
     block.classList.toggle('highlight', (block.dataset.searchtext || '').toLowerCase().includes(lower));

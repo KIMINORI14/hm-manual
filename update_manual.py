@@ -99,6 +99,7 @@ def load_config():
         "rice":      {"month": "2026年5月", "pages": 2},
         "chouri":    {"month": "2026年5月", "pages": 7},
         "chouri_zen": {"month": "2026年3月", "pages": 0},
+        "yasai":     {"month": "", "pages": 0},
         "hansoku_cur":  {"month": "2026年5月", "pages": HANSOKU_PAGES},
         "hansoku_prev": {"month": None, "pages": 0},
     }
@@ -225,6 +226,71 @@ def build_hansoku_section(config, changed_pages=None, embed_images=False):
     {prev_blocks_html}
   </section>'''
 
+def build_other_section(config, embed_images=False):
+    """「マニュアル一覧」セクション（多数のマニュアルをインデックス形式で集約）を生成。
+    (section_html, other_titles_json) を返す。"""
+    manuals = config.get("other_manuals", [])
+    if not manuals:
+        return "", "{}"
+    cards = []
+    views = []
+    titles_map = {}
+    for m in manuals:
+        mid = m["id"]
+        icon = m.get("icon", "")
+        title = m["title"]
+        desc = m.get("desc", "")
+        pages = m.get("pages", 0)
+        prefix = f"other_{mid}"
+        images = []
+        for i in range(1, pages + 1):
+            rel = f"images/{prefix}-{i}.png"
+            if os.path.exists(os.path.join(SCRIPT_DIR, rel)):
+                images.append(rel)
+        texts = []
+        tf = os.path.join(IMAGES_DIR, f"{prefix}_text.txt")
+        if os.path.exists(tf):
+            with open(tf, "r", encoding="utf-8") as f:
+                texts = [p.strip() for p in f.read().split("\f")]
+        blocks = build_page_blocks(prefix, images, texts, set(), embed_images)
+        titles_map[prefix] = f"{icon} {title}"
+        safe_title = html.escape(title)
+        safe_desc = html.escape(desc)
+        cards.append(f'''
+        <button class="manual-card" onclick="openManual('{mid}')">
+          <span class="manual-card-icon">{icon}</span>
+          <span class="manual-card-body">
+            <span class="manual-card-title">{safe_title}</span>
+            <span class="manual-card-pages">{pages}ページ</span>
+          </span>
+          <span class="manual-card-arrow">›</span>
+        </button>''')
+        views.append(f'''
+      <div class="manual-view" id="manual-view-{mid}" style="display:none">
+        <button class="manual-back" onclick="backToManualIndex()">← マニュアル一覧へ戻る</button>
+        <div class="manual-view-header">
+          <h3>{icon} {safe_title}</h3>
+          <p class="manual-view-desc">{safe_desc}</p>
+        </div>
+        <div class="swipe-container" id="swipe-{prefix}">
+          {blocks}
+        </div>
+      </div>''')
+    section = f'''
+  <section id="section-other" class="section" style="display:none">
+    <div class="section-header">
+      <h2>📚 マニュアル一覧</h2>
+      <p class="section-desc">各種オペレーションマニュアル（カードをタップで開く）</p>
+    </div>
+    <div id="other-index" class="other-index">
+      {''.join(cards)}
+    </div>
+    <div id="other-views">
+      {''.join(views)}
+    </div>
+  </section>'''
+    return section, json.dumps(titles_map, ensure_ascii=False)
+
 def build_html(config, changed_pages_map=None, password_hash=None, expires_date=None, embed_images=False):
     """index.html を生成
     changed_pages_map: { 'fuzokuhin': {1,3}, 'rice': set(), ... } 変更のあったページ番号のセット
@@ -254,21 +320,26 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     rice_pages = config.get("rice", {}).get("pages", 2)
     cho_pages = config.get("chouri", {}).get("pages", 7)
     chozen_pages = config.get("chouri_zen", {}).get("pages", 0)
+    yasai_pages = config.get("yasai", {}).get("pages", 0)
     fuz_month = config.get("fuzokuhin", {}).get("month", "")
     rice_month = config.get("rice", {}).get("month", "")
     cho_month = config.get("chouri", {}).get("month", "")
     chozen_month = config.get("chouri_zen", {}).get("month", "")
+    yasai_month = config.get("yasai", {}).get("month", "")
 
     fuz_imgs, fuz_texts = get_section_images_texts("fuzokuhin", fuz_pages, "fuzokuhin_text.txt")
     rice_imgs, rice_texts = get_section_images_texts("rice", rice_pages, "rice_text.txt")
     cho_imgs, cho_texts = get_section_images_texts("chouri", cho_pages, "chouri_text.txt")
     chozen_imgs, chozen_texts = get_section_images_texts("chouri_zen", chozen_pages, "chouri_zen_text.txt")
+    yasai_imgs, yasai_texts = get_section_images_texts("yasai", yasai_pages, "yasai_text.txt")
 
     fuz_blocks = build_page_blocks("fuzokuhin", fuz_imgs, fuz_texts, changed_pages_map.get("fuzokuhin", set()), embed_images)
     rice_blocks = build_page_blocks("rice", rice_imgs, rice_texts, changed_pages_map.get("rice", set()), embed_images)
     cho_blocks = build_page_blocks("chouri", cho_imgs, cho_texts, changed_pages_map.get("chouri", set()), embed_images)
     chozen_blocks = build_page_blocks("chouri_zen", chozen_imgs, chozen_texts, changed_pages_map.get("chouri_zen", set()), embed_images)
+    yasai_blocks = build_page_blocks("yasai", yasai_imgs, yasai_texts, changed_pages_map.get("yasai", set()), embed_images)
     hansoku_section = build_hansoku_section(config, changed_pages_map.get("hansoku_cur", set()), embed_images)
+    other_section, other_titles_js = build_other_section(config, embed_images)
 
     cur_month = config.get("hansoku_cur", {}).get("month", "")
     updated = datetime.now().strftime("%Y年%m月%d日")
@@ -754,6 +825,35 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     }}
     #editBar .mode-btn.active {{ background: #f39c12; color: white; }}
     #editBar .mode-btn:hover:not(.active) {{ background: rgba(255,255,255,0.15); color: white; }}
+
+    /* ===== マニュアル一覧（インデックス） ===== */
+    .other-index {{ display: flex; flex-direction: column; gap: 8px; }}
+    .manual-card {{
+      display: flex; align-items: center; gap: 12px;
+      background: white; border: none; border-radius: 10px;
+      padding: 14px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      cursor: pointer; text-align: left; width: 100%;
+      transition: box-shadow 0.15s, transform 0.1s;
+    }}
+    .manual-card:hover {{ box-shadow: 0 3px 10px rgba(0,0,0,0.15); }}
+    .manual-card:active {{ transform: scale(0.99); }}
+    .manual-card-icon {{ font-size: 26px; flex-shrink: 0; width: 34px; text-align: center; }}
+    .manual-card-body {{ flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }}
+    .manual-card-title {{ font-size: 15px; font-weight: 700; color: #333; line-height: 1.3; }}
+    .manual-card-pages {{ font-size: 12px; color: #999; }}
+    .manual-card-arrow {{ font-size: 22px; color: #ccc; flex-shrink: 0; }}
+    .manual-back {{
+      background: #eee; border: none; color: #555;
+      padding: 8px 14px; border-radius: 16px; font-size: 13px;
+      cursor: pointer; font-weight: 600; margin-bottom: 12px;
+    }}
+    .manual-back:hover {{ background: #ddd; }}
+    .manual-view-header {{
+      background: white; border-radius: 10px; padding: 14px 16px;
+      margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }}
+    .manual-view-header h3 {{ font-size: 16px; color: #c0392b; margin-bottom: 4px; }}
+    .manual-view-desc {{ font-size: 12px; color: #666; }}
 {lock_css}
   </style>
 </head>
@@ -778,6 +878,7 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
     <button class="tab-btn" onclick="showSection('chouri')" id="tab-chouri">🍳 <span class="tab-label">調理(季節)</span><span class="tab-badge" id="badge-chouri"></span></button>
     <button class="tab-btn" onclick="showSection('chouri_zen')" id="tab-chouri_zen">🍳 <span class="tab-label">調理(全国)</span><span class="tab-badge" id="badge-chouri_zen"></span></button>
     <button class="tab-btn" onclick="showSection('hansoku')" id="tab-hansoku">📣 <span class="tab-label">販促計画</span><span class="tab-badge" id="badge-hansoku"></span></button>
+    <button class="tab-btn" onclick="showSection('other')" id="tab-other">📚 <span class="tab-label">マニュアル一覧</span><span class="tab-badge" id="badge-other"></span></button>
   </div>
 </header>
 
@@ -828,6 +929,8 @@ def build_html(config, changed_pages_map=None, password_hash=None, expires_date=
   </section>
 
 {hansoku_section}
+
+{other_section}
 </main>
 
 <div id="editBar">
@@ -975,6 +1078,8 @@ function showSection(id) {{
   document.getElementById('tab-' + id).classList.add('active');
   const q = document.getElementById('searchInput').value.trim();
   if (q) highlightSection(id, q);
+  // マニュアル一覧タブは通常クリック時は一覧（インデックス）を表示
+  if (id === 'other' && !window._otherKeepView) backToManualIndex();
   // 表示後にページ番号ボタンのスクロール位置を更新
   setTimeout(function() {{
     var section = document.getElementById('section-' + id);
@@ -984,6 +1089,27 @@ function showSection(id) {{
       }});
     }}
   }}, 60);
+}}
+
+// ===== マニュアル一覧（インデックス⇄個別表示） =====
+var OTHER_TITLES = {other_titles_js};
+
+function openManual(mid) {{
+  var index = document.getElementById('other-index');
+  if (index) index.style.display = 'none';
+  document.querySelectorAll('.manual-view').forEach(function(v) {{ v.style.display = 'none'; }});
+  var view = document.getElementById('manual-view-' + mid);
+  if (view) view.style.display = 'block';
+  var cid = 'swipe-other_' + mid;
+  setTimeout(function() {{ if (swipeState[cid]) updateSwipeButtons(cid); }}, 60);
+  window.scrollTo({{ top: 0, behavior: 'smooth' }});
+}}
+
+function backToManualIndex() {{
+  document.querySelectorAll('.manual-view').forEach(function(v) {{ v.style.display = 'none'; }});
+  var index = document.getElementById('other-index');
+  if (index) index.style.display = '';
+  window.scrollTo({{ top: 0, behavior: 'smooth' }});
 }}
 
 // ===== 販促計画書 月切替 =====
@@ -1022,13 +1148,13 @@ function doSearch() {{
     if (hasMatch) {{
       const sid = block.dataset.section;
       results.push({{ sectionId: sid, page: parseInt(block.dataset.page), el: block }});
-      const mainSid = sid.startsWith('hansoku') ? 'hansoku' : sid;
+      const mainSid = sid.startsWith('hansoku') ? 'hansoku' : (sid.startsWith('other_') ? 'other' : sid);
       sectionCounts[mainSid] = (sectionCounts[mainSid] || 0) + 1;
     }}
   }});
 
   // タブにバッジ表示
-  ['fuzokuhin', 'rice', 'chouri', 'chouri_zen', 'hansoku'].forEach(sid => {{
+  ['fuzokuhin', 'rice', 'chouri', 'chouri_zen', 'hansoku', 'other'].forEach(sid => {{
     const badge = document.getElementById('badge-' + sid);
     if (badge) {{
       const count = sectionCounts[sid] || 0;
@@ -1045,45 +1171,53 @@ function doSearch() {{
   banner.style.display = 'block';
 
   if (results.length > 0) {{
-    const sectionTitles = {{
+    const sectionTitles = Object.assign({{
       fuzokuhin: '付属品', rice: 'ライス盛付', chouri: '調理(季節)', chouri_zen: '調理(全国)',
       hansoku_cur: '販促(当月)', hansoku_prev: '販促(前月)'
-    }};
+    }}, OTHER_TITLES);
     const groups = {{}};
     results.forEach(r => {{
       if (!groups[r.sectionId]) groups[r.sectionId] = [];
       groups[r.sectionId].push(r);
     }});
+
+    // 検索結果から該当ページへ遷移する共通処理
+    function gotoResult(sid, r) {{
+      if (sid.startsWith('other_')) {{
+        var mid = sid.slice('other_'.length);
+        window._otherKeepView = true;
+        showSection('other');
+        window._otherKeepView = false;
+        openManual(mid);
+        var ocid = 'swipe-' + sid;
+        if (swipeState[ocid]) swipeGoTo(ocid, r.page - 1);
+        setTimeout(() => r.el.scrollIntoView({{ behavior: 'smooth', block: 'center' }}), 80);
+        return;
+      }}
+      const mainSection = sid.startsWith('hansoku') ? 'hansoku' : sid;
+      showSection(mainSection);
+      if (sid === 'hansoku_prev') switchMonth('prev');
+      else if (sid === 'hansoku_cur') switchMonth('cur');
+      const cid = sid.startsWith('hansoku') ? sid.replace('_', '-') + '-content' : 'swipe-' + mainSection;
+      const pageIdx = r.page - 1;
+      if (swipeState[cid]) swipeGoTo(cid, pageIdx);
+      else if (swipeState['swipe-' + mainSection]) swipeGoTo('swipe-' + mainSection, pageIdx);
+      setTimeout(() => r.el.scrollIntoView({{ behavior: 'smooth', block: 'center' }}), 50);
+    }}
+
     Object.entries(groups).forEach(([sid, rs]) => {{
       rs.forEach(r => {{
         const btn = document.createElement('button');
         btn.className = 'result-chip';
         btn.textContent = (sectionTitles[sid] || sid) + ' p.' + r.page;
-        btn.onclick = () => {{
-          const mainSection = sid.startsWith('hansoku') ? 'hansoku' : sid;
-          showSection(mainSection);
-          if (sid === 'hansoku_prev') switchMonth('prev');
-          else if (sid === 'hansoku_cur') switchMonth('cur');
-          // スワイプで該当ページに移動
-          const cid = sid.startsWith('hansoku') ? sid.replace('hansoku', 'hansoku') + '-content' : 'swipe-' + mainSection;
-          const pageIdx = r.page - 1;
-          if (swipeState[cid]) swipeGoTo(cid, pageIdx);
-          else if (swipeState['swipe-' + mainSection]) swipeGoTo('swipe-' + mainSection, pageIdx);
-          setTimeout(() => r.el.scrollIntoView({{ behavior: 'smooth', block: 'center' }}), 50);
-        }};
+        btn.onclick = () => gotoResult(sid, r);
         nav.appendChild(btn);
       }});
     }});
 
     // 最初の結果のセクションに遷移
     const firstResult = results[0];
-    const mainSection = firstResult.sectionId.startsWith('hansoku') ? 'hansoku' : firstResult.sectionId;
-    showSection(mainSection);
-    if (firstResult.sectionId === 'hansoku_prev') switchMonth('prev');
-    // スワイプページ移動
-    const firstCid = 'swipe-' + mainSection;
-    if (swipeState[firstCid]) swipeGoTo(firstCid, firstResult.page - 1);
-    setTimeout(() => firstResult.el.scrollIntoView({{ behavior: 'smooth', block: 'center' }}), 100);
+    gotoResult(firstResult.sectionId, firstResult);
   }} else {{
     nav.innerHTML = '<span style="font-size:12px;color:#888;">見つかりませんでした</span>';
   }}
@@ -1091,8 +1225,8 @@ function doSearch() {{
 
 function highlightSection(sectionId, q) {{
   const lower = q.toLowerCase();
-  const selector = sectionId === 'hansoku'
-    ? '.page-block[data-section^="hansoku"]'
+  const selector = (sectionId === 'hansoku' || sectionId === 'other')
+    ? `.page-block[data-section^="${{sectionId}}"]`
     : `.page-block[data-section="${{sectionId}}"]`;
   document.querySelectorAll(selector).forEach(block => {{
     block.classList.toggle('highlight', (block.dataset.searchtext || '').toLowerCase().includes(lower));
@@ -1309,6 +1443,41 @@ def update_section(name, pdf_path, prefix, config, first=None, last=None):
     print(f"  ✅ {page_count}ページ変換完了")
     return page_count, changed
 
+def update_image_section(name, src_folder, prefix, config):
+    """画像フォルダから画像セクション（野菜カット等）を更新。(ページ数, 変更set)を返す。
+    src_folder内の画像をファイル名順に prefix-1.png, prefix-2.png ... へコピー。
+    """
+    print(f"\n  🖼  {name} を更新中（画像フォルダ: {src_folder}）...")
+    exts = (".png", ".jpg", ".jpeg", ".heic", ".webp", ".gif")
+    src_files = sorted([f for f in os.listdir(src_folder)
+                        if f.lower().endswith(exts) and not f.startswith(".")])
+    if not src_files:
+        print(f"  ⚠️ 画像が見つかりません: {src_folder}")
+        return 0, set()
+    # 既存画像を削除
+    for f in os.listdir(IMAGES_DIR):
+        if f.startswith(prefix + "-"):
+            os.remove(os.path.join(IMAGES_DIR, f))
+    # HEIC等はpngへ変換、その他はそのままコピー
+    count = 0
+    for i, src in enumerate(src_files, start=1):
+        src_path = os.path.join(src_folder, src)
+        dst_path = os.path.join(IMAGES_DIR, f"{prefix}-{i}.png")
+        ext = os.path.splitext(src)[1].lower()
+        if ext == ".png":
+            shutil.copyfile(src_path, dst_path)
+        else:
+            # sipsでpngへ変換（macOS標準）
+            r = subprocess.run(["sips", "-s", "format", "png", src_path, "--out", dst_path],
+                               capture_output=True, text=True)
+            if r.returncode != 0 or not os.path.exists(dst_path):
+                # 変換失敗時はそのままコピー（拡張子だけpngにする）
+                shutil.copyfile(src_path, dst_path)
+        count += 1
+    print(f"  ✅ {count}ページ取り込み完了")
+    # 全ページ変更扱い
+    return count, set(range(1, count + 1))
+
 def update_hansoku(pdf_path, month_label, config):
     """販促計画書を更新（前月へローテーション）。変更ページのsetを返す"""
     print(f"\n  📣 販促計画書を更新中（当月: {month_label}）...")
@@ -1365,6 +1534,8 @@ def main():
     parser.add_argument("--rice",      help="ライス盛付 PDFのパス")
     parser.add_argument("--chouri",    help="調理手順シート（季節商品）PDFのパス")
     parser.add_argument("--chouri-zen", dest="chouri_zen", help="調理手順シート（全国版）PDFのパス")
+    parser.add_argument("--yasai", help="野菜カットマニュアル 画像フォルダのパス（画像をファイル名順に取込）")
+    parser.add_argument("--yasai-month", dest="yasai_month", help="野菜カットマニュアルの版表示（例: 2026年3月）")
     parser.add_argument("--hansoku",   help="販促計画書 PDFのパス（当月）")
     parser.add_argument("--month",     help='当月ラベル（例: "2026年6月"）')
     parser.add_argument("--password",  help='閲覧パスワード（SHA-256ハッシュ化して埋め込み）')
@@ -1372,7 +1543,7 @@ def main():
     parser.add_argument("--embed",     action="store_true", help='画像をBase64埋め込み（HTMLファイル1つで完結）')
     args = parser.parse_args()
 
-    if not any([args.fuzokuhin, args.rice, args.chouri, args.chouri_zen, args.hansoku]):
+    if not any([args.fuzokuhin, args.rice, args.chouri, args.chouri_zen, args.yasai, args.hansoku]):
         print("❌ 更新するPDFを最低1つ指定してください。")
         print("   使い方: python3 update_manual.py --help")
         return
@@ -1409,6 +1580,12 @@ def main():
         pages, changed = update_section("調理手順シート（全国版）", args.chouri_zen, "chouri_zen", config)
         config["chouri_zen"] = {"month": month, "pages": pages}
         changed_pages_map["chouri_zen"] = changed
+
+    # 野菜カットマニュアル（画像フォルダ）
+    if args.yasai:
+        pages, changed = update_image_section("野菜カットマニュアル", args.yasai, "yasai", config)
+        config["yasai"] = {"month": args.yasai_month or config.get("yasai", {}).get("month", ""), "pages": pages}
+        changed_pages_map["yasai"] = changed
 
     # 販促計画書
     if args.hansoku:
